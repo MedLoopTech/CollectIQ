@@ -1,0 +1,81 @@
+{
+  "name": "CollectIQ - Recovery Sprint Weekly Refresh v0.1",
+  "nodes": [
+    {
+      "parameters": {"rule": {"interval": [{"field": "days", "daysInterval": 1, "triggerAtHour": 8}]}},
+      "id": "schedule",
+      "name": "Daily Sprint Refresh",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL + '/rest/v1/recovery_sprints?status=eq.active&select=id,company_name,current_week,start_date,end_date'}}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [
+          {"name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},
+          {"name": "Authorization", "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"}
+        ]},
+        "options": {}
+      },
+      "id": "loadsprints",
+      "name": "Load Active Sprints",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows=$input.first().json; return (Array.isArray(rows)?rows:[]).map(s=>({json:s}));"
+      },
+      "id": "split",
+      "name": "Split Sprints",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SUPABASE_URL + '/rest/v1/rpc/refresh_recovery_sprint'}}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [
+          {"name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},
+          {"name": "Authorization", "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"},
+          {"name": "Content-Type", "value": "application/json"}
+        ]},
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{JSON.stringify({p_sprint_id:$json.id,p_as_of:$now.toISODate()})}}",
+        "options": {}
+      },
+      "id": "refresh",
+      "name": "Refresh Sprint + CFO Brief",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [720, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const r=$json; return [{json:{...r,needs_review:Boolean(r.brief_id)}}];"
+      },
+      "id": "reviewflag",
+      "name": "Flag Brief for Review",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 0]
+    }
+  ],
+  "connections": {
+    "Daily Sprint Refresh": {"main": [[{"node": "Load Active Sprints", "type": "main", "index": 0}]]},
+    "Load Active Sprints": {"main": [[{"node": "Split Sprints", "type": "main", "index": 0}]]},
+    "Split Sprints": {"main": [[{"node": "Refresh Sprint + CFO Brief", "type": "main", "index": 0}]]},
+    "Refresh Sprint + CFO Brief": {"main": [[{"node": "Flag Brief for Review", "type": "main", "index": 0}]]}
+  },
+  "active": false,
+  "settings": {"executionOrder": "v1", "timezone": "Asia/Karachi"},
+  "versionId": "collectiq-recovery-weekly-refresh-v01"
+}
