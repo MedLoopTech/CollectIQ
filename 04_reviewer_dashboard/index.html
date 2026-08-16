@@ -4,27 +4,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CollectIQ Reviewer Dashboard</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232563eb'/%3E%3Ctext x='32' y='44' font-size='34' font-family='Arial' font-weight='800' fill='white' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230B1D31'/%3E%3Crect x='19' y='34' width='8' height='15' rx='2' fill='white'/%3E%3Crect x='30' y='25' width='8' height='24' rx='2' fill='%234DE1D0'/%3E%3Crect x='41' y='16' width='8' height='33' rx='2' fill='%2300B5A6'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
-  --bg:#f5f7fb;--surface:#fff;--ink:#0b1424;--muted:#5b6b81;--line:#e6ebf2;
-  --navy:#0f2744;--navy2:#1c3f66;--blue:#2563eb;--teal:#0ea5a3;--soft:#eaf1fb;
-  --green:#0f766e;--red:#b42318;--amber:#b45309;
-  --shadow-sm:0 2px 8px rgba(15,23,42,.05);--shadow-md:0 12px 32px rgba(15,23,42,.08);--shadow-lg:0 24px 60px rgba(15,39,68,.14);
+  --bg:#F2F4F7;--surface:#fff;--ink:#0B1D31;--muted:#5b6b81;--line:#e4e9ef;
+  --navy:#0B1D31;--navy2:#132a49;--blue:#2D9CDB;--teal:#00B5A6;--aqua:#4DE1D0;--soft:#e7f6f4;
+  --green:#00857a;--red:#b42318;--amber:#FFB020;
+  --shadow-sm:0 2px 8px rgba(11,29,49,.05);--shadow-md:0 12px 32px rgba(11,29,49,.08);--shadow-lg:0 24px 60px rgba(11,29,49,.14);
   --radius:18px;--radius-sm:12px;
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:"Inter",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+body{margin:0;font-family:"Poppins",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
 
-.brand-mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--teal));display:grid;place-items:center;color:#fff;font-weight:800;font-size:14px;box-shadow:0 6px 16px rgba(37,99,235,.35);flex:none}
+.brand-mark{width:30px;height:30px;flex:none;display:inline-block;color:transparent;font-size:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M78 24 A36 36 0 1 0 78 76' fill='none' stroke='%230B1D31' stroke-width='13' stroke-linecap='round'/%3E%3Crect x='39' y='55' width='10' height='21' rx='3' fill='%2300B5A6'/%3E%3Crect x='53' y='41' width='10' height='35' rx='3' fill='%2300B5A6'/%3E%3Crect x='67' y='27' width='10' height='49' rx='3' fill='%234DE1D0'/%3E%3C/svg%3E");background-size:contain;background-repeat:no-repeat;background-position:center}
 
 .app{display:grid;grid-template-columns:290px 1fr;min-height:100vh}
 .side{background:linear-gradient(180deg,var(--navy),#0a1c30);color:#fff;padding:24px;display:flex;flex-direction:column}
-.brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;margin-bottom:4px}
+.side .brand-mark{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M78 24 A36 36 0 1 0 78 76' fill='none' stroke='%23ffffff' stroke-width='13' stroke-linecap='round'/%3E%3Crect x='39' y='55' width='10' height='21' rx='3' fill='%2300B5A6'/%3E%3Crect x='53' y='41' width='10' height='35' rx='3' fill='%2300B5A6'/%3E%3Crect x='67' y='27' width='10' height='49' rx='3' fill='%234DE1D0'/%3E%3C/svg%3E")}
+.brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;margin-bottom:4px}
 .side small{opacity:.55;font-size:12px;padding-left:40px}
 .queue{display:grid;gap:8px;margin-top:22px;overflow-y:auto}
 .lead{padding:14px;border-radius:var(--radius-sm);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:background .15s ease,transform .15s ease}
@@ -37,7 +38,7 @@ body{margin:0;font-family:"Inter",ui-sans-serif,system-ui,-apple-system,BlinkMac
 .main{padding:32px 36px;min-width:0}
 .top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
 .top h1{margin:0;font-size:28px;letter-spacing:-.02em}
-.pill{padding:7px 12px;border-radius:999px;font-size:11.5px;font-weight:800;letter-spacing:.03em;background:var(--soft);color:var(--blue);text-transform:uppercase}
+.pill{padding:7px 12px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.03em;background:var(--soft);color:var(--blue);text-transform:uppercase}
 .pill.status-needs_review{background:#fff7ed;color:var(--amber)}
 .pill.status-audit_ready{background:#eaf1fb;color:var(--blue)}
 .pill.status-sent{background:#ecfdf5;color:var(--green)}
@@ -83,7 +84,7 @@ textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(3
 .login-panel .brand{margin-bottom:18px;color:var(--ink)}
 .login-panel h1{font-size:20px;margin:0 0 4px}
 .login-panel p{color:var(--muted);font-size:13.5px;margin:0 0 22px}
-.login-panel label{display:block;font-size:13px;font-weight:800;margin-bottom:6px}
+.login-panel label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
 .login-panel input{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;margin-bottom:16px;font-family:inherit;transition:border-color .15s ease,box-shadow .15s ease}
 .login-panel input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
 .login-panel .btn{width:100%}
@@ -141,7 +142,7 @@ textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(3
         <section class="panel">
           <h2>Validation &amp; review</h2>
           <div id="validation"></div>
-          <label style="display:block;font-weight:800;font-size:13px;margin:14px 0 6px">Reviewer notes</label>
+          <label style="display:block;font-weight:700;font-size:13px;margin:14px 0 6px">Reviewer notes</label>
           <textarea id="reviewNotes" placeholder="Add internal notes before approval."></textarea>
           <div class="actions">
             <button class="btn secondary" id="saveNotesBtn">Save Notes</button>
