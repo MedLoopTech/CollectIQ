@@ -15,7 +15,7 @@
 <nav class="nav">
   <div class="container nav-inner">
     <a class="brand" href="index.html"><span class="brand-mark">C</span><span>CollectIQ</span></a>
-    <div class="navlinks">
+    <div class="navlinks" id="navlinks">
       <a href="index.html">Home</a>
       <a href="product.html">Product</a>
       <a href="recovery-sprint.html">Recovery Sprint</a>
@@ -23,6 +23,7 @@
       <a href="pricing.html">Pricing</a>
     </div>
     <div class="nav-right">
+      <button class="navToggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false"></button>
       <a class="btn btn-primary btn-sm" href="audit.html">Get a Free AR Audit</a>
     </div>
   </div>
@@ -155,5 +156,6 @@
   }, { threshold: 0.12 });
   document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 </script>
+<script src="assets/nav.js"></script>
 </body>
 </html>
