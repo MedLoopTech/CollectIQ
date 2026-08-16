@@ -91,7 +91,7 @@ No LLM is required for these financial calculations.
 
 `n8n_weekly_sprint_refresh_v01.json` runs daily at 08:00 and calls `refresh_recovery_sprint` for every active Sprint. The SQL layer determines whether the Sprint is still Week 0 or which weekly brief should be updated.
 
-Keep CFO Brief delivery human-reviewed during the pilot.
+A generated brief remains `draft`; it is not sent automatically. Review and client delivery stay human-controlled during the pilot.
 
 ## Current MVP boundary
 
