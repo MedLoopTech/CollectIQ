@@ -199,8 +199,8 @@ footer{padding:40px 0 48px;color:var(--muted);font-size:13.5px;border-top:1px so
 .feature-icon{width:56px;height:56px;border-radius:14px;background:var(--soft);color:var(--blue);display:grid;place-items:center;font-weight:700;font-size:18px}
 .feature h3{margin:0 0 8px;font-size:21px;letter-spacing:-.02em}
 .feature p.desc{margin:0 0 14px;color:var(--muted);font-size:15px}
-.feature .taglist{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-.feature .taglist span{padding:6px 12px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);font-size:12.5px;color:var(--ink);font-weight:600}
+.taglist{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.taglist span{padding:6px 12px;border-radius:999px;background:#f8fafc;border:1px solid var(--line);font-size:12.5px;color:var(--ink);font-weight:600}
 
 .example-box{background:linear-gradient(160deg,#0f2744,#173458);color:#fff;border-radius:var(--radius-sm);padding:22px 24px;margin-top:6px}
 .example-box .ex-tag{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--aqua);text-transform:uppercase;margin-bottom:10px}
