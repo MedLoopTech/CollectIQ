@@ -1,0 +1,8 @@
+services:
+  collectiq-audit-engine:
+    build:
+      context: ./02_audit_engine
+    container_name: collectiq-audit-engine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
