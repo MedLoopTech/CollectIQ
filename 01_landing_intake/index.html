@@ -3,157 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CollectIQ — Free AR Intelligence Audit</title>
-  <meta name="description" content="Turn your ageing report into a prioritized AR Intelligence Audit." />
+  <title>CollectIQ — AR Intelligence + Managed Recovery</title>
+  <meta name="description" content="Turn your ageing report into a prioritized AR Intelligence Audit, then recover cash with a 30-day managed recovery sprint." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232563eb'/%3E%3Ctext x='32' y='44' font-size='34' font-family='Arial' font-weight='800' fill='white' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root{
-      --bg:#f5f7fb;--surface:#fff;--ink:#0b1424;--muted:#5b6b81;--line:#e6ebf2;
-      --navy:#0f2744;--navy2:#1c3f66;--blue:#2563eb;--blue2:#3b82f6;--teal:#0ea5a3;
-      --soft:#eaf1fb;--green:#0f766e;--danger:#b42318;--amber:#b45309;
-      --shadow-sm:0 2px 8px rgba(15,23,42,.05);
-      --shadow-md:0 12px 32px rgba(15,23,42,.08);
-      --shadow-lg:0 30px 70px rgba(15,39,68,.16);
-      --radius:22px;--radius-sm:14px;
-    }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{margin:0;font-family:"Inter",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
-    a{color:inherit;text-decoration:none}
-    .container{width:min(1160px,calc(100% - 40px));margin:auto}
-    ::selection{background:#bfdbfe;color:var(--navy)}
-
-    .nav{position:sticky;top:0;z-index:30;background:rgba(245,247,251,.78);backdrop-filter:blur(18px) saturate(160%);border-bottom:1px solid rgba(226,232,240,.7)}
-    .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 0}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;letter-spacing:-.01em}
-    .brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--teal));display:grid;place-items:center;color:#fff;font-weight:800;box-shadow:0 6px 16px rgba(37,99,235,.35)}
-
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 22px;border-radius:12px;font-weight:700;border:1px solid transparent;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,background .18s ease;font-size:15px;font-family:inherit}
-    .btn-primary{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;box-shadow:0 10px 24px rgba(15,39,68,.28)}
-    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 32px rgba(15,39,68,.36)}
-    .btn-secondary{background:#fff;border-color:var(--line);color:var(--navy)}
-    .btn-secondary:hover{border-color:#c7d2e0;transform:translateY(-1px)}
-    .btn-block{width:100%}
-
-    .hero{position:relative;padding:96px 0 60px;overflow:hidden}
-    .hero::before{
-      content:"";position:absolute;inset:-20% -10% auto -10%;height:640px;z-index:-1;
-      background:
-        radial-gradient(600px 320px at 12% 10%, rgba(37,99,235,.14), transparent 60%),
-        radial-gradient(560px 320px at 88% 0%, rgba(14,165,163,.14), transparent 60%);
-      filter:blur(10px);
-    }
-    .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
-    .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--soft);color:var(--blue);font-size:12.5px;font-weight:800;letter-spacing:.02em}
-    .eyebrow .dot{width:6px;height:6px;border-radius:99px;background:var(--teal)}
-    h1{font-size:clamp(42px,5.6vw,68px);line-height:1.03;letter-spacing:-.04em;margin:20px 0 20px;font-weight:900}
-    h1 .accent{background:linear-gradient(135deg,var(--blue),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
-    .hero p.lead{font-size:19px;color:var(--muted);max-width:52ch}
-    .hero-cta{display:flex;align-items:center;gap:16px;margin-top:28px;flex-wrap:wrap}
-    .hero-note{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:8px}
-    .hero-note svg{flex:none}
-
-    .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-lg)}
-    .audit-card{padding:26px;position:relative}
-    .audit-card::before{content:"";position:absolute;inset:0;border-radius:var(--radius);padding:1px;background:linear-gradient(160deg,rgba(37,99,235,.35),rgba(14,165,163,0) 45%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
-    .audit-card-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
-    .audit-card-head .label{font-size:11.5px;color:var(--muted);font-weight:800;letter-spacing:.05em}
-    .audit-card-head h3{margin:4px 0 0;font-size:19px}
-    .ring{width:86px;height:86px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--amber) 0turn, var(--amber) .335turn, #fde9d0 .335turn);position:relative;flex:none}
-    .ring::after{content:"";position:absolute;inset:8px;border-radius:50%;background:#fff}
-    .ring-inner{position:relative;text-align:center;z-index:1}
-    .ring-inner strong{display:block;font-size:22px;color:#9a3412;line-height:1}
-    .ring-inner small{font-size:9.5px;color:var(--muted);font-weight:700;letter-spacing:.03em}
-    .metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:20px}
-    .metric{padding:16px;border-radius:var(--radius-sm);background:#f8fafc;border:1px solid var(--line);transition:transform .18s ease,border-color .18s ease}
-    .metric:hover{transform:translateY(-2px);border-color:#cbd8ec}
-    .metric strong{display:block;font-size:22px;letter-spacing:-.02em}
-    .metric span{font-size:12px;color:var(--muted)}
-    .audit-card-foot{display:flex;align-items:center;gap:8px;margin-top:18px;padding-top:16px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--muted)}
-    .badge-live{display:inline-flex;align-items:center;gap:6px;color:var(--green);font-weight:800}
-    .badge-live .pulse{width:7px;height:7px;border-radius:99px;background:var(--green);box-shadow:0 0 0 0 rgba(15,118,110,.5);animation:pulse 2s infinite}
-    @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(15,118,110,.45)}70%{box-shadow:0 0 0 8px rgba(15,118,110,0)}100%{box-shadow:0 0 0 0 rgba(15,118,110,0)}}
-
-    .stats-strip{padding:36px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
-    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
-    .stats-grid div strong{display:block;font-size:30px;letter-spacing:-.03em;background:linear-gradient(135deg,var(--navy),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
-    .stats-grid div span{font-size:13px;color:var(--muted)}
-
-    section{padding:88px 0}
-    .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
-    .reveal.in{opacity:1;transform:none}
-    .section-head{max-width:760px;margin-bottom:40px}
-    .section-head .eyebrow{margin-bottom:14px}
-    .section-head h2{font-size:clamp(30px,4vw,42px);line-height:1.12;letter-spacing:-.035em;margin:0 0 12px;font-weight:900}
-    .section-head p{color:var(--muted);font-size:18px}
-
-    .workflow{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-    .step{padding:26px;transition:transform .2s ease,box-shadow .2s ease}
-    .step:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
-    .step .num{width:38px;height:38px;border-radius:11px;background:var(--soft);color:var(--blue);display:grid;place-items:center;font-weight:800;font-size:14px;margin-bottom:14px}
-    .step h3{margin:0 0 6px;font-size:17px}
-    .step p{color:var(--muted);font-size:14px;margin:0}
-
-    .intake-wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:28px;align-items:start}
-    .intake-info{padding:34px}
-    .intake-info h2{font-size:34px;line-height:1.12;margin:10px 0 14px;letter-spacing:-.03em;font-weight:900}
-    .trust{display:grid;gap:10px;margin-top:22px}
-    .trust div{padding:14px 16px;background:#f8fafc;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:13.5px}
-    .trust strong{color:var(--ink)}
-
-    .intake-form{padding:34px}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .field{display:grid;gap:7px}
-    .field.full{grid-column:1/-1}
-    label{font-size:13px;font-weight:800}
-    .hint{font-size:12px;color:var(--muted)}
-    input,select,textarea{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:11px;font-size:15px;background:#fff;color:var(--ink);font-family:inherit;transition:border-color .15s ease,box-shadow .15s ease}
-    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
-    textarea{min-height:92px;resize:vertical}
-    .check{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--muted)}
-    .check input{width:auto;margin-top:3px;accent-color:var(--blue)}
-    .drop{padding:22px;border:1.5px dashed #b6c3d6;border-radius:var(--radius-sm);background:#f8fafc;transition:border-color .15s ease,background .15s ease}
-    .drop:hover{border-color:var(--blue);background:var(--soft)}
-    .drop strong{display:block;margin-bottom:2px}
-    .status{margin-top:16px;padding:13px 15px;border-radius:11px;display:none;font-size:14px;font-weight:600}
-    .status.ok{display:block;background:#ecfdf5;color:#065f46}
-    .status.err{display:block;background:#fef2f2;color:#991b1b}
-
-    .cta-band{margin:0 auto;border-radius:28px;padding:64px 48px;background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 55%,#0d5a56 130%);color:#fff;text-align:center;position:relative;overflow:hidden}
-    .cta-band::before{content:"";position:absolute;inset:0;background:radial-gradient(420px 220px at 85% -10%, rgba(14,165,163,.35), transparent 60%);pointer-events:none}
-    .cta-band h2{font-size:clamp(28px,4vw,40px);margin:0 0 14px;letter-spacing:-.03em;font-weight:900}
-    .cta-band p{color:rgba(255,255,255,.78);font-size:17px;max-width:52ch;margin:0 auto 28px}
-    .cta-band .btn-primary{background:#fff;color:var(--navy);box-shadow:0 14px 30px rgba(0,0,0,.25)}
-    .cta-band .btn-primary:hover{background:#f1f5f9}
-
-    footer{padding:40px 0 48px;color:var(--muted);font-size:13.5px;border-top:1px solid var(--line);margin-top:20px}
-    .footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-    .footer-brand{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--ink)}
-
-    @media(max-width:900px){
-      .hero-grid,.intake-wrap{grid-template-columns:1fr}
-      .workflow{grid-template-columns:1fr 1fr}
-      .stats-grid{grid-template-columns:1fr 1fr}
-      .cta-band{padding:48px 28px}
-    }
-    @media(max-width:620px){
-      .workflow,.form-grid,.metric-grid{grid-template-columns:1fr}
-      .field.full{grid-column:auto}
-      .hero{padding-top:60px}
-      section{padding:64px 0}
-      .stats-grid{grid-template-columns:1fr 1fr;gap:24px}
-    }
-  </style>
+  <link rel="stylesheet" href="assets/style.css" />
 </head>
 <body>
 <nav class="nav">
   <div class="container nav-inner">
-    <a class="brand" href="#"><span class="brand-mark">C</span><span>CollectIQ</span></a>
-    <a class="btn btn-primary" href="#audit-form">Get a Free AR Audit</a>
+    <a class="brand" href="index.html"><span class="brand-mark">C</span><span>CollectIQ</span></a>
+    <div class="navlinks">
+      <a href="index.html" class="active">Home</a>
+      <a href="offering.html">The Offering</a>
+      <a href="pricing.html">Pricing</a>
+    </div>
+    <div class="nav-right">
+      <a class="btn btn-primary btn-sm" href="audit.html">Get a Free AR Audit</a>
+    </div>
   </div>
 </nav>
 
@@ -164,11 +33,12 @@
       <h1>Know exactly which <span class="accent">invoices to chase</span> first.</h1>
       <p class="lead">Upload an ageing report and get a prioritized view of overdue receivables, broken payment promises, disputes, and the next best collection actions — reviewed by a human before it reaches you.</p>
       <div class="hero-cta">
-        <a class="btn btn-primary" href="#audit-form">Request Free AR Intelligence Audit</a>
-        <span class="hero-note">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#0f766e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          CSV/XLSX accepted · names can be anonymized
-        </span>
+        <a class="btn btn-primary" href="audit.html">Request Free AR Intelligence Audit</a>
+        <a class="btn btn-secondary" href="offering.html">See the full offering</a>
+      </div>
+      <div class="hero-note" style="margin-top:18px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#0f766e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        CSV/XLSX accepted · names can be anonymized
       </div>
     </div>
     <div class="panel audit-card">
@@ -215,87 +85,39 @@
   </div>
 </section>
 
-<section id="audit-form">
-  <div class="container intake-wrap reveal">
-    <div class="panel intake-info">
-      <span class="eyebrow"><span class="dot"></span> FREE AR INTELLIGENCE AUDIT</span>
-      <h2>See where your cash is getting stuck.</h2>
-      <p style="color:var(--muted)">Your audit is designed to identify the highest-priority receivables, concentration risk, missed promises, dispute signals, and accounts needing immediate follow-up.</p>
-      <div class="trust">
-        <div><strong>Minimum data:</strong> Customer, invoice number, invoice date, due date, amount, outstanding balance, currency.</div>
-        <div><strong>Anonymization:</strong> You may replace customer names with codes before uploading.</div>
-        <div><strong>Human review:</strong> Early audits are reviewed before results are shared.</div>
+<section>
+  <div class="container reveal">
+    <div class="section-head">
+      <span class="eyebrow"><span class="dot"></span> THE FULL OFFERING</span>
+      <h2>A free diagnostic, then a managed path to recover cash.</h2>
+      <p>CollectIQ isn't a one-off report. It's the on-ramp into a human-reviewed, managed AR recovery engagement.</p>
+    </div>
+    <div class="offer-grid">
+      <div class="panel offer-card">
+        <span class="offer-tag">Free</span>
+        <h3>AR Intelligence Audit</h3>
+        <div class="offer-price">$0 — no card, no commitment</div>
+        <ul class="offer-list">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AR Health Score &amp; ageing profile</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Priority pool &amp; top collection opportunities</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Disputes &amp; broken-promise signals</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Recommended next actions</li>
+        </ul>
+        <a class="btn btn-secondary btn-block" href="audit.html">Request the free audit</a>
+      </div>
+      <div class="panel offer-card highlight">
+        <span class="offer-tag paid">Paid pilot</span>
+        <h3>30-Day AR Recovery Sprint</h3>
+        <div class="offer-price">Starts at <strong>$250</strong> onboarding + <strong>$300</strong> service fee</div>
+        <ul class="offer-list">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#0f766e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Everything in the free audit, kept current</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#0f766e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> A working 30-day prioritized collection queue</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#0f766e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Human-reviewed follow-up guidance, not auto-sent</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#0f766e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Optional performance-based component</li>
+        </ul>
+        <a class="btn btn-primary btn-block" href="offering.html">See how the sprint works</a>
       </div>
     </div>
-
-    <form class="panel intake-form" id="auditIntakeForm">
-      <div class="form-grid">
-        <div class="field">
-          <label for="company">Company name *</label>
-          <input id="company" name="company" required />
-        </div>
-        <div class="field">
-          <label for="website">Company website</label>
-          <input id="website" name="website" type="url" placeholder="https://" />
-        </div>
-        <div class="field">
-          <label for="name">Your name *</label>
-          <input id="name" name="name" required />
-        </div>
-        <div class="field">
-          <label for="email">Work email *</label>
-          <input id="email" name="email" type="email" required />
-        </div>
-        <div class="field">
-          <label for="role">Role *</label>
-          <select id="role" name="role" required>
-            <option value="">Select role</option>
-            <option>CFO</option><option>Finance Director</option><option>Controller</option><option>Finance Manager</option>
-            <option>AR / Collections</option><option>Founder / CEO</option><option>Other</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="accounting_system">Accounting / ERP system</label>
-          <select id="accounting_system" name="accounting_system">
-            <option value="">Select</option><option>QuickBooks</option><option>Xero</option><option>NetSuite</option>
-            <option>Sage</option><option>Dynamics</option><option>SAP</option><option>Excel / Sheets</option><option>Other</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="ar_size">Approx. outstanding AR</label>
-          <select id="ar_size" name="ar_size">
-            <option value="">Select</option><option>&lt; $100k</option><option>$100k–$500k</option><option>$500k–$1m</option>
-            <option>$1m–$5m</option><option>$5m+</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="invoice_volume">Approx. open invoices</label>
-          <select id="invoice_volume" name="invoice_volume">
-            <option value="">Select</option><option>&lt; 100</option><option>100–500</option><option>500–2,000</option><option>2,000+</option>
-          </select>
-        </div>
-        <div class="field full">
-          <label>Ageing file *</label>
-          <div class="drop">
-            <input id="file" name="file" type="file" accept=".csv,.xlsx,.xls" required />
-            <span class="hint">CSV, XLSX, or XLS. Max recommended pilot size: 10 MB.</span>
-          </div>
-        </div>
-        <div class="field full">
-          <label for="notes">Anything we should know?</label>
-          <textarea id="notes" name="notes" placeholder="For example: major disputes, recent collections issues, or whether customer names are anonymized."></textarea>
-        </div>
-        <div class="field full">
-          <label class="check"><input id="anonymized" type="checkbox" /> <span>Customer names in the uploaded file are anonymized or I understand I can anonymize them before upload.</span></label>
-        </div>
-        <div class="field full">
-          <label class="check"><input id="consent" type="checkbox" required /> <span>I confirm I am authorized to share this file for AR analysis and understand the audit is operational finance support, not legal or debt-collection advice.</span></label>
-        </div>
-      </div>
-
-      <button class="btn btn-primary btn-block" id="submitBtn" type="submit" style="margin-top:20px">Submit for Free Audit</button>
-      <div id="status" class="status"></div>
-    </form>
   </div>
 </section>
 
@@ -304,7 +126,10 @@
     <div class="cta-band">
       <h2>Stop guessing which invoices matter.</h2>
       <p>Get a prioritized, human-reviewed AR Intelligence Audit — free, in under 48 hours.</p>
-      <a class="btn btn-primary" href="#audit-form">Request Free AR Intelligence Audit</a>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="audit.html">Request Free AR Intelligence Audit</a>
+        <a class="btn btn-secondary" href="pricing.html">View pricing</a>
+      </div>
     </div>
   </div>
 </section>
@@ -312,89 +137,17 @@
 <footer>
   <div class="container footer-inner">
     <div class="footer-brand"><span class="brand-mark" style="width:26px;height:26px;font-size:13px">C</span> CollectIQ</div>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="offering.html">The Offering</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="audit.html">Free Audit</a>
+    </div>
     <div>AI Receivables Intelligence. Human-reviewed pilot audits.</div>
   </div>
 </footer>
 
 <script>
-  const SUPABASE_URL = "https://eubspkvwlkrakrtarwhb.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1YnNwa3Z3bGtyYWtydGFyd2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4ODI3ODcsImV4cCI6MjEwMjQ1ODc4N30._Icsf8j998P44dnriStY_bbFaFN7zUdw1kmFbVN74EU";
-  const N8N_WEBHOOK_URL = "https://n8n.impactmint.cloud/webhook/collectiq-audit-intake";
-
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const form = document.getElementById("auditIntakeForm");
-  const statusBox = document.getElementById("status");
-  const submitBtn = document.getElementById("submitBtn");
-
-  function showStatus(message, ok=true){
-    statusBox.className = "status " + (ok ? "ok" : "err");
-    statusBox.textContent = message;
-  }
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Submitting...";
-    statusBox.className = "status";
-
-    try {
-      const file = document.getElementById("file").files[0];
-      if (!file) throw new Error("Please attach an ageing file.");
-      if (file.size > 10 * 1024 * 1024) throw new Error("Please keep the pilot upload under 10 MB.");
-
-      const leadId = crypto.randomUUID();
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const storagePath = `${leadId}/${Date.now()}-${safeName}`;
-
-      const { error: uploadError } = await sb.storage
-        .from("ar-intake")
-        .upload(storagePath, file, { upsert: false });
-
-      if (uploadError) throw uploadError;
-
-      const payload = {
-        id: leadId,
-        company_name: document.getElementById("company").value.trim(),
-        company_website: document.getElementById("website").value.trim() || null,
-        contact_name: document.getElementById("name").value.trim(),
-        work_email: document.getElementById("email").value.trim(),
-        role: document.getElementById("role").value,
-        accounting_system: document.getElementById("accounting_system").value || null,
-        ar_size_band: document.getElementById("ar_size").value || null,
-        invoice_volume_band: document.getElementById("invoice_volume").value || null,
-        notes: document.getElementById("notes").value.trim() || null,
-        anonymized: document.getElementById("anonymized").checked,
-        consent: document.getElementById("consent").checked,
-        file_path: storagePath,
-        file_name: file.name,
-        file_size: file.size,
-        status: "file_received"
-      };
-
-      const { error: insertError } = await sb.from("audit_leads").insert(payload);
-      if (insertError) throw insertError;
-
-      // Optional n8n trigger. The webhook should NOT trust the browser payload alone;
-      // it should re-read the lead from Supabase using the lead id.
-      if (N8N_WEBHOOK_URL && !N8N_WEBHOOK_URL.startsWith("YOUR_")) {
-        await fetch(N8N_WEBHOOK_URL, {
-          method: "POST",
-          headers: { "Content-Type":"application/json" },
-          body: JSON.stringify({ lead_id: leadId })
-        });
-      }
-
-      form.reset();
-      showStatus("Received. Your AR file has been submitted for review.");
-    } catch (err) {
-      console.error(err);
-      showStatus(err.message || "Submission failed. Please try again.", false);
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Submit for Free Audit";
-    }
-  });
-
   const io = new IntersectionObserver((entries) => {
     entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
   }, { threshold: 0.12 });

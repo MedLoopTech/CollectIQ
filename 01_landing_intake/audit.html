@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free AR Intelligence Audit — CollectIQ</title>
+  <meta name="description" content="Upload your ageing report for a free, human-reviewed AR Intelligence Audit." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232563eb'/%3E%3Ctext x='32' y='44' font-size='34' font-family='Arial' font-weight='800' fill='white' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<nav class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="index.html"><span class="brand-mark">C</span><span>CollectIQ</span></a>
+    <div class="navlinks">
+      <a href="index.html">Home</a>
+      <a href="offering.html">The Offering</a>
+      <a href="pricing.html">Pricing</a>
+    </div>
+    <div class="nav-right">
+      <a class="btn btn-primary btn-sm" href="audit.html">Get a Free AR Audit</a>
+    </div>
+  </div>
+</nav>
+
+<header class="page-hero">
+  <div class="container">
+    <span class="eyebrow"><span class="dot"></span> FREE AR INTELLIGENCE AUDIT</span>
+    <h1>See where your cash is getting stuck.</h1>
+    <p class="hero-note" style="margin-top:14px;font-size:15px">CSV, XLSX, or XLS accepted. Customer names may be anonymized before upload.</p>
+  </div>
+</header>
+
+<section style="padding-top:24px">
+  <div class="container intake-wrap">
+    <div class="panel intake-info">
+      <span class="eyebrow"><span class="dot"></span> WHAT YOU GET</span>
+      <h2>A prioritized view of your receivables.</h2>
+      <p style="color:var(--muted)">Your audit is designed to identify the highest-priority receivables, concentration risk, missed promises, dispute signals, and accounts needing immediate follow-up.</p>
+      <div class="trust">
+        <div><strong>Minimum data:</strong> Customer, invoice number, invoice date, due date, amount, outstanding balance, currency.</div>
+        <div><strong>Anonymization:</strong> You may replace customer names with codes before uploading.</div>
+        <div><strong>Human review:</strong> Early audits are reviewed before results are shared.</div>
+      </div>
+    </div>
+
+    <form class="panel intake-form" id="auditIntakeForm">
+      <div class="form-grid">
+        <div class="field">
+          <label for="company">Company name *</label>
+          <input id="company" name="company" required />
+        </div>
+        <div class="field">
+          <label for="website">Company website</label>
+          <input id="website" name="website" type="url" placeholder="https://" />
+        </div>
+        <div class="field">
+          <label for="name">Your name *</label>
+          <input id="name" name="name" required />
+        </div>
+        <div class="field">
+          <label for="email">Work email *</label>
+          <input id="email" name="email" type="email" required />
+        </div>
+        <div class="field">
+          <label for="role">Role *</label>
+          <select id="role" name="role" required>
+            <option value="">Select role</option>
+            <option>CFO</option><option>Finance Director</option><option>Controller</option><option>Finance Manager</option>
+            <option>AR / Collections</option><option>Founder / CEO</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="accounting_system">Accounting / ERP system</label>
+          <select id="accounting_system" name="accounting_system">
+            <option value="">Select</option><option>QuickBooks</option><option>Xero</option><option>NetSuite</option>
+            <option>Sage</option><option>Dynamics</option><option>SAP</option><option>Excel / Sheets</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ar_size">Approx. outstanding AR</label>
+          <select id="ar_size" name="ar_size">
+            <option value="">Select</option><option>&lt; $100k</option><option>$100k–$500k</option><option>$500k–$1m</option>
+            <option>$1m–$5m</option><option>$5m+</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="invoice_volume">Approx. open invoices</label>
+          <select id="invoice_volume" name="invoice_volume">
+            <option value="">Select</option><option>&lt; 100</option><option>100–500</option><option>500–2,000</option><option>2,000+</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>Ageing file *</label>
+          <div class="drop">
+            <input id="file" name="file" type="file" accept=".csv,.xlsx,.xls" required />
+            <span class="hint">CSV, XLSX, or XLS. Max recommended pilot size: 10 MB.</span>
+          </div>
+        </div>
+        <div class="field full">
+          <label for="notes">Anything we should know?</label>
+          <textarea id="notes" name="notes" placeholder="For example: major disputes, recent collections issues, or whether customer names are anonymized."></textarea>
+        </div>
+        <div class="field full">
+          <label class="check"><input id="anonymized" type="checkbox" /> <span>Customer names in the uploaded file are anonymized or I understand I can anonymize them before upload.</span></label>
+        </div>
+        <div class="field full">
+          <label class="check"><input id="consent" type="checkbox" required /> <span>I confirm I am authorized to share this file for AR analysis and understand the audit is operational finance support, not legal or debt-collection advice.</span></label>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-block" id="submitBtn" type="submit" style="margin-top:20px">Submit for Free Audit</button>
+      <div id="status" class="status"></div>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="container footer-inner">
+    <div class="footer-brand"><span class="brand-mark" style="width:26px;height:26px;font-size:13px">C</span> CollectIQ</div>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="offering.html">The Offering</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="audit.html">Free Audit</a>
+    </div>
+    <div>AI Receivables Intelligence. Human-reviewed pilot audits.</div>
+  </div>
+</footer>
+
+<script>
+  const SUPABASE_URL = "https://eubspkvwlkrakrtarwhb.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1YnNwa3Z3bGtyYWtydGFyd2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4ODI3ODcsImV4cCI6MjEwMjQ1ODc4N30._Icsf8j998P44dnriStY_bbFaFN7zUdw1kmFbVN74EU";
+  const N8N_WEBHOOK_URL = "https://n8n.impactmint.cloud/webhook/collectiq-audit-intake";
+
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const form = document.getElementById("auditIntakeForm");
+  const statusBox = document.getElementById("status");
+  const submitBtn = document.getElementById("submitBtn");
+
+  function showStatus(message, ok=true){
+    statusBox.className = "status " + (ok ? "ok" : "err");
+    statusBox.textContent = message;
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting...";
+    statusBox.className = "status";
+
+    try {
+      const file = document.getElementById("file").files[0];
+      if (!file) throw new Error("Please attach an ageing file.");
+      if (file.size > 10 * 1024 * 1024) throw new Error("Please keep the pilot upload under 10 MB.");
+
+      const leadId = crypto.randomUUID();
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const storagePath = `${leadId}/${Date.now()}-${safeName}`;
+
+      const { error: uploadError } = await sb.storage
+        .from("ar-intake")
+        .upload(storagePath, file, { upsert: false });
+
+      if (uploadError) throw uploadError;
+
+      const payload = {
+        id: leadId,
+        company_name: document.getElementById("company").value.trim(),
+        company_website: document.getElementById("website").value.trim() || null,
+        contact_name: document.getElementById("name").value.trim(),
+        work_email: document.getElementById("email").value.trim(),
+        role: document.getElementById("role").value,
+        accounting_system: document.getElementById("accounting_system").value || null,
+        ar_size_band: document.getElementById("ar_size").value || null,
+        invoice_volume_band: document.getElementById("invoice_volume").value || null,
+        notes: document.getElementById("notes").value.trim() || null,
+        anonymized: document.getElementById("anonymized").checked,
+        consent: document.getElementById("consent").checked,
+        file_path: storagePath,
+        file_name: file.name,
+        file_size: file.size,
+        status: "file_received"
+      };
+
+      const { error: insertError } = await sb.from("audit_leads").insert(payload);
+      if (insertError) throw insertError;
+
+      // Optional n8n trigger. The webhook should NOT trust the browser payload alone;
+      // it should re-read the lead from Supabase using the lead id.
+      if (N8N_WEBHOOK_URL && !N8N_WEBHOOK_URL.startsWith("YOUR_")) {
+        await fetch(N8N_WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type":"application/json" },
+          body: JSON.stringify({ lead_id: leadId })
+        });
+      }
+
+      form.reset();
+      showStatus("Received. Your AR file has been submitted for review.");
+    } catch (err) {
+      console.error(err);
+      showStatus(err.message || "Submission failed. Please try again.", false);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit for Free Audit";
+    }
+  });
+</script>
+</body>
+</html>
