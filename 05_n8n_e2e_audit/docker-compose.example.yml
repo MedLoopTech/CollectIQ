@@ -1,0 +1,14 @@
+services:
+  collectiq-audit-engine:
+    build:
+      context: ./collectiq_audit_engine_v01
+    container_name: collectiq-audit-engine
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - collectiq
+
+networks:
+  collectiq:
+    driver: bridge

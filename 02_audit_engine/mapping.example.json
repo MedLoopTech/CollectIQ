@@ -1,0 +1,9 @@
+{
+  "customer_name": "Customer",
+  "invoice_number": "Invoice #",
+  "invoice_date": "Invoice Date",
+  "due_date": "Due Date",
+  "invoice_amount": "Invoice Amount",
+  "outstanding_amount": "Outstanding Balance",
+  "currency": "Currency"
+}

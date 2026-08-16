@@ -1,0 +1,111 @@
+{
+  "portfolio": "Northstar Digital Ltd.",
+  "as_of": "2026-08-16",
+  "version": "CollectIQ scoring v0.1",
+  "metrics": {
+    "open_invoices": 342,
+    "customers": 85,
+    "total_ar": 823999.92,
+    "overdue_ar": 346179.71,
+    "ar_60_plus": 141005.12,
+    "ar_90_plus": 71767.79,
+    "disputed_ar": 53499.06,
+    "missed_promise_value": 18822.84,
+    "priority_pool": 78722.14,
+    "top10_concentration": 0.271071,
+    "overdue_ratio": 0.420121,
+    "ar_health_score": 33.5
+  },
+  "top_10_opportunities": [
+    {
+      "customer": "Orion Systems",
+      "invoice_number": "INV-10339",
+      "outstanding": 14640.79,
+      "days_overdue": 119,
+      "priority_score": 86.5,
+      "promise_status": "pending",
+      "dispute_type": null
+    },
+    {
+      "customer": "Juniper Works",
+      "invoice_number": "INV-10342",
+      "outstanding": 2884.83,
+      "days_overdue": 132,
+      "priority_score": 83.0,
+      "promise_status": "missed",
+      "dispute_type": null
+    },
+    {
+      "customer": "Catalyst Services",
+      "invoice_number": "INV-10334",
+      "outstanding": 5257.11,
+      "days_overdue": 102,
+      "priority_score": 81.5,
+      "promise_status": null,
+      "dispute_type": "purchase_order"
+    },
+    {
+      "customer": "Apex Services",
+      "invoice_number": "INV-10336",
+      "outstanding": 9463.67,
+      "days_overdue": 107,
+      "priority_score": 80.5,
+      "promise_status": null,
+      "dispute_type": "invoice_error"
+    },
+    {
+      "customer": "Sterling Consulting",
+      "invoice_number": "INV-10337",
+      "outstanding": 12289.86,
+      "days_overdue": 119,
+      "priority_score": 76.5,
+      "promise_status": null,
+      "dispute_type": null
+    },
+    {
+      "customer": "Delta Labs",
+      "invoice_number": "INV-10338",
+      "outstanding": 4115.41,
+      "days_overdue": 141,
+      "priority_score": 76.5,
+      "promise_status": "pending",
+      "dispute_type": "invoice_error"
+    },
+    {
+      "customer": "Horizon Solutions",
+      "invoice_number": "INV-10327",
+      "outstanding": 4279.52,
+      "days_overdue": 145,
+      "priority_score": 75.5,
+      "promise_status": "missed",
+      "dispute_type": null
+    },
+    {
+      "customer": "Vertex Systems",
+      "invoice_number": "INV-10335",
+      "outstanding": 2200.76,
+      "days_overdue": 121,
+      "priority_score": 73.5,
+      "promise_status": "missed",
+      "dispute_type": null
+    },
+    {
+      "customer": "Westlake Group",
+      "invoice_number": "INV-10325",
+      "outstanding": 16553.73,
+      "days_overdue": 89,
+      "priority_score": 72.5,
+      "promise_status": null,
+      "dispute_type": null
+    },
+    {
+      "customer": "Axis Solutions",
+      "invoice_number": "INV-10312",
+      "outstanding": 7036.46,
+      "days_overdue": 80,
+      "priority_score": 72.0,
+      "promise_status": null,
+      "dispute_type": null
+    }
+  ]
+}

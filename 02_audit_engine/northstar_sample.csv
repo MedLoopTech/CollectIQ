@@ -1,0 +1,343 @@
+invoice_number,customer_id,customer_name,industry,country,invoice_date,due_date,invoice_amount,amount_paid,outstanding_amount,payment_terms_days,avg_days_late,promise_reliability,last_contact_days,promise_status,promise_amount,promise_date,dispute_type,sales_owner,email
+INV-10001,C012,Nimbus Solutions,Logistics Tech,USA,2026-08-28,2026-09-27,890.85,0.0,890.85,30,25,0.55,0,,0.0,,,Owner 4,finance12@example.com
+INV-10002,C046,Delta Labs,Consulting,Canada,2026-07-13,2026-08-27,1932.08,0.0,1932.08,45,45,0.3,7,,0.0,,,Owner 6,finance46@example.com
+INV-10003,C056,Peak Labs,Consulting,Australia,2026-08-13,2026-09-12,2291.42,0.0,2291.42,30,0,0.92,9,,0.0,,,Owner 8,finance56@example.com
+INV-10004,C077,Tandem Services,Staffing,USA,2026-08-07,2026-08-22,1683.11,0.0,1683.11,15,25,0.55,0,,0.0,,,Owner 5,finance77@example.com
+INV-10005,C010,Evergreen Works,Staffing,UAE,2026-07-18,2026-09-01,2882.53,0.0,2882.53,45,8,0.75,8,,0.0,,,Owner 2,finance10@example.com
+INV-10006,C067,Kinetic Services,IT Services,USA,2026-07-06,2026-08-20,1218.07,304.51,913.55,45,51,0.3,5,,0.0,,,Owner 3,finance67@example.com
+INV-10007,C009,Beacon Technologies,B2B SaaS,USA,2026-08-20,2026-09-19,4616.07,0.0,4616.07,30,13,0.75,7,,0.0,,,Owner 1,finance9@example.com
+INV-10008,C081,Highland Digital,B2B SaaS,Canada,2026-07-18,2026-09-01,4721.66,0.0,4721.66,45,6,0.92,7,,0.0,,,Owner 1,finance81@example.com
+INV-10009,C025,Westlake Group,B2B SaaS,Canada,2026-08-02,2026-09-01,1638.76,0.0,1638.76,30,27,0.55,4,,0.0,,,Owner 1,finance25@example.com
+INV-10010,C027,Granite Services,Consulting,USA,2026-07-07,2026-08-21,1137.06,0.0,1137.06,45,11,0.75,3,,0.0,,,Owner 3,finance27@example.com
+INV-10011,C069,Crosspoint Technologies,Logistics Tech,Australia,2026-08-01,2026-09-30,543.25,0.0,543.25,60,25,0.55,1,,0.0,,,Owner 5,finance69@example.com
+INV-10012,C081,Highland Digital,B2B SaaS,Canada,2026-07-28,2026-09-11,1110.23,555.12,555.12,45,6,0.92,4,,0.0,,,Owner 1,finance81@example.com
+INV-10013,C060,Ridge Works,Staffing,UAE,2026-07-17,2026-09-15,4421.9,0.0,4421.9,60,4,0.92,7,,0.0,,,Owner 4,finance60@example.com
+INV-10014,C033,Vantage Systems,Consulting,USA,2026-08-11,2026-09-10,827.62,413.81,413.82,30,1,0.92,8,,0.0,,,Owner 1,finance33@example.com
+INV-10015,C007,Cedar Services,Logistics Tech,UAE,2026-07-06,2026-08-20,1352.96,338.24,1014.72,45,3,0.92,10,,0.0,,,Owner 7,finance7@example.com
+INV-10016,C031,Cobalt Digital,B2B SaaS,UAE,2026-07-19,2026-09-02,1519.3,0.0,1519.3,45,12,0.75,3,,0.0,,,Owner 7,finance31@example.com
+INV-10017,C003,Vertex Systems,Consulting,UAE,2026-06-21,2026-08-20,1253.19,313.3,939.89,60,8,0.75,6,,0.0,,,Owner 3,finance3@example.com
+INV-10018,C004,BluePeak Consulting,Digital Agency,UK,2026-07-11,2026-08-25,1596.79,399.2,1197.59,45,2,0.92,3,,0.0,,,Owner 4,finance4@example.com
+INV-10019,C069,Crosspoint Technologies,Logistics Tech,Australia,2026-06-27,2026-08-26,667.0,0.0,667.0,60,25,0.55,9,,0.0,,,Owner 5,finance69@example.com
+INV-10020,C037,Apex Services,Consulting,Australia,2026-08-06,2026-09-05,1376.39,0.0,1376.39,30,10,0.75,1,,0.0,,,Owner 5,finance37@example.com
+INV-10021,C044,Praxis Consulting,B2B SaaS,UK,2026-07-25,2026-08-24,478.72,0.0,478.72,30,13,0.75,5,,0.0,,,Owner 4,finance44@example.com
+INV-10022,C009,Beacon Technologies,B2B SaaS,USA,2026-08-01,2026-08-31,1603.37,0.0,1603.37,30,13,0.75,4,,0.0,,,Owner 1,finance9@example.com
+INV-10023,C085,Sequoia Group,IT Services,UK,2026-08-21,2026-09-20,1956.97,0.0,1956.97,30,4,0.92,6,,0.0,,,Owner 5,finance85@example.com
+INV-10024,C042,Anchor Solutions,Digital Agency,Canada,2026-07-19,2026-08-18,1923.52,0.0,1923.52,30,2,0.92,9,,0.0,,,Owner 2,finance42@example.com
+INV-10025,C030,Harbor Works,Logistics Tech,UAE,2026-07-30,2026-09-28,1583.68,395.92,1187.76,60,13,0.75,3,,0.0,,,Owner 6,finance30@example.com
+INV-10026,C063,Monarch Systems,Consulting,USA,2026-07-23,2026-08-22,1821.33,0.0,1821.33,30,9,0.75,3,,0.0,,,Owner 7,finance63@example.com
+INV-10027,C017,BrightPath Services,IT Services,USA,2026-08-17,2026-09-16,640.75,0.0,640.75,30,14,0.75,0,,0.0,,,Owner 1,finance17@example.com
+INV-10028,C083,Cascade Systems,B2B SaaS,USA,2026-06-28,2026-08-27,843.53,421.76,421.77,60,8,0.75,9,,0.0,,,Owner 3,finance83@example.com
+INV-10029,C027,Granite Services,Consulting,USA,2026-07-19,2026-09-02,2920.43,0.0,2920.43,45,11,0.75,6,,0.0,,,Owner 3,finance27@example.com
+INV-10030,C029,Oakridge Technologies,Digital Agency,UK,2026-08-10,2026-09-09,1635.01,0.0,1635.01,30,28,0.55,0,,0.0,,,Owner 5,finance29@example.com
+INV-10031,C021,Silverline Digital,Staffing,Canada,2026-08-01,2026-09-15,790.86,0.0,790.86,45,1,0.92,0,,0.0,,,Owner 5,finance21@example.com
+INV-10032,C025,Westlake Group,B2B SaaS,Canada,2026-08-15,2026-09-14,2124.6,1593.45,531.15,30,27,0.55,3,,0.0,,,Owner 1,finance25@example.com
+INV-10033,C086,Frontier Labs,Staffing,Canada,2026-07-22,2026-09-20,1058.14,0.0,1058.14,60,6,0.92,8,,0.0,,,Owner 6,finance86@example.com
+INV-10034,C075,Arcadia Group,Staffing,UK,2026-07-17,2026-09-15,2566.43,0.0,2566.43,60,24,0.55,2,,0.0,,,Owner 3,finance75@example.com
+INV-10035,C059,Paragon Technologies,Logistics Tech,Australia,2026-06-30,2026-08-29,1886.39,0.0,1886.39,60,8,0.75,2,,0.0,,,Owner 3,finance59@example.com
+INV-10036,C008,Atlas Partners,B2B SaaS,Australia,2026-08-09,2026-09-08,2477.96,1238.98,1238.98,30,10,0.75,0,,0.0,,,Owner 8,finance8@example.com
+INV-10037,C042,Anchor Solutions,Digital Agency,Canada,2026-07-28,2026-08-27,752.55,0.0,752.55,30,2,0.92,9,,0.0,,,Owner 2,finance42@example.com
+INV-10038,C069,Crosspoint Technologies,Logistics Tech,Australia,2026-07-15,2026-09-13,1240.8,0.0,1240.8,60,25,0.55,9,,0.0,,,Owner 5,finance69@example.com
+INV-10039,C035,Coreline Group,Staffing,UK,2026-07-27,2026-08-26,2502.35,0.0,2502.35,30,11,0.75,5,,0.0,,,Owner 3,finance35@example.com
+INV-10040,C052,Pulse Solutions,Staffing,UK,2026-08-16,2026-09-15,458.61,0.0,458.61,30,22,0.55,1,,0.0,,,Owner 4,finance52@example.com
+INV-10041,C076,Bayside Labs,Digital Agency,UK,2026-07-28,2026-08-27,1351.9,0.0,1351.9,30,9,0.75,7,,0.0,,,Owner 4,finance76@example.com
+INV-10042,C028,Nova Partners,IT Services,Australia,2026-08-18,2026-09-17,1416.56,354.14,1062.42,30,6,0.92,1,,0.0,,,Owner 4,finance28@example.com
+INV-10043,C014,Sterling Consulting,Staffing,Canada,2026-07-29,2026-08-28,310.38,0.0,310.38,30,8,0.75,3,,0.0,,,Owner 6,finance14@example.com
+INV-10044,C041,Signal Digital,Staffing,Canada,2026-09-10,2026-09-25,4487.74,0.0,4487.74,15,1,0.92,8,,0.0,,,Owner 1,finance41@example.com
+INV-10045,C022,Crescent Solutions,Logistics Tech,USA,2026-08-02,2026-08-17,5337.29,0.0,5337.29,15,5,0.92,7,,0.0,,,Owner 6,finance22@example.com
+INV-10046,C081,Highland Digital,B2B SaaS,Canada,2026-07-14,2026-08-28,4780.69,3585.52,1195.17,45,6,0.92,7,,0.0,,,Owner 1,finance81@example.com
+INV-10047,C016,Lattice Labs,IT Services,UK,2026-08-01,2026-09-15,3029.23,0.0,3029.23,45,1,0.92,8,,0.0,,,Owner 8,finance16@example.com
+INV-10048,C041,Signal Digital,Staffing,Canada,2026-09-08,2026-09-23,1042.41,0.0,1042.41,15,1,0.92,8,,0.0,,,Owner 1,finance41@example.com
+INV-10049,C044,Praxis Consulting,B2B SaaS,UK,2026-08-28,2026-09-27,750.95,0.0,750.95,30,13,0.75,4,,0.0,,,Owner 4,finance44@example.com
+INV-10050,C051,Meridian Digital,Staffing,UAE,2026-08-08,2026-09-07,1132.97,0.0,1132.97,30,27,0.55,0,,0.0,,,Owner 3,finance51@example.com
+INV-10051,C049,Vector Technologies,Staffing,USA,2026-08-02,2026-09-01,1135.39,0.0,1135.39,30,26,0.55,1,,0.0,,,Owner 1,finance49@example.com
+INV-10052,C006,Northwind Labs,Logistics Tech,UK,2026-07-20,2026-08-19,2932.34,0.0,2932.34,30,11,0.75,7,,0.0,,,Owner 6,finance6@example.com
+INV-10053,C043,Vista Systems,B2B SaaS,Canada,2026-06-29,2026-08-28,985.31,246.33,738.99,60,23,0.55,7,,0.0,,,Owner 3,finance43@example.com
+INV-10054,C079,Prospect Technologies,B2B SaaS,Canada,2026-08-23,2026-09-22,2334.35,0.0,2334.35,30,5,0.92,3,,0.0,,,Owner 7,finance79@example.com
+INV-10055,C061,TrueNorth Digital,Consulting,UAE,2026-08-18,2026-09-17,2111.15,0.0,2111.15,30,28,0.55,8,,0.0,,,Owner 5,finance61@example.com
+INV-10056,C062,Axis Solutions,Digital Agency,UK,2026-08-07,2026-08-22,1075.37,0.0,1075.37,15,10,0.75,8,,0.0,,,Owner 6,finance62@example.com
+INV-10057,C079,Prospect Technologies,B2B SaaS,Canada,2026-08-31,2026-09-30,1427.16,0.0,1427.16,30,5,0.92,4,,0.0,,,Owner 7,finance79@example.com
+INV-10058,C052,Pulse Solutions,Staffing,UK,2026-08-28,2026-09-27,914.62,0.0,914.62,30,22,0.55,1,,0.0,,,Owner 4,finance52@example.com
+INV-10059,C028,Nova Partners,IT Services,Australia,2026-07-22,2026-08-21,1158.73,0.0,1158.73,30,6,0.92,1,,0.0,,,Owner 4,finance28@example.com
+INV-10060,C049,Vector Technologies,Staffing,USA,2026-08-27,2026-09-26,3366.06,0.0,3366.06,30,26,0.55,7,,0.0,,,Owner 1,finance49@example.com
+INV-10061,C012,Nimbus Solutions,Logistics Tech,USA,2026-08-09,2026-09-08,404.5,0.0,404.5,30,25,0.55,6,,0.0,,,Owner 4,finance12@example.com
+INV-10062,C056,Peak Labs,Consulting,Australia,2026-08-07,2026-09-06,2390.95,0.0,2390.95,30,0,0.92,9,,0.0,,,Owner 8,finance56@example.com
+INV-10063,C060,Ridge Works,Staffing,UAE,2026-07-27,2026-09-25,1007.21,0.0,1007.21,60,4,0.92,2,,0.0,,,Owner 4,finance60@example.com
+INV-10064,C081,Highland Digital,B2B SaaS,Canada,2026-07-22,2026-09-05,772.17,0.0,772.17,45,6,0.92,8,,0.0,,,Owner 1,finance81@example.com
+INV-10065,C073,Strata Systems,Digital Agency,UAE,2026-07-31,2026-09-14,3379.36,1689.67,1689.68,45,25,0.55,0,,0.0,,,Owner 1,finance73@example.com
+INV-10066,C014,Sterling Consulting,Staffing,Canada,2026-08-21,2026-09-20,3736.82,0.0,3736.82,30,8,0.75,7,,0.0,,,Owner 6,finance14@example.com
+INV-10067,C001,Acme Digital,Digital Agency,UK,2026-07-29,2026-08-28,3767.48,0.0,3767.48,30,26,0.55,5,,0.0,,,Owner 1,finance1@example.com
+INV-10068,C042,Anchor Solutions,Digital Agency,Canada,2026-08-23,2026-09-22,2403.62,0.0,2403.62,30,2,0.92,1,,0.0,,,Owner 2,finance42@example.com
+INV-10069,C026,Bridgepoint Labs,IT Services,Canada,2026-07-22,2026-08-21,2154.19,0.0,2154.19,30,11,0.75,2,,0.0,,,Owner 2,finance26@example.com
+INV-10070,C057,Clarity Services,Consulting,UAE,2026-06-28,2026-08-27,679.42,0.0,679.42,60,13,0.75,5,,0.0,,,Owner 1,finance57@example.com
+INV-10071,C084,Briar Consulting,IT Services,Australia,2026-06-24,2026-08-23,1803.37,0.0,1803.37,60,23,0.55,6,,0.0,,,Owner 4,finance84@example.com
+INV-10072,C073,Strata Systems,Digital Agency,UAE,2026-08-05,2026-09-19,941.98,0.0,941.98,45,25,0.55,4,,0.0,,,Owner 1,finance73@example.com
+INV-10073,C063,Monarch Systems,Consulting,USA,2026-08-02,2026-09-01,2429.74,0.0,2429.74,30,9,0.75,1,,0.0,,,Owner 7,finance63@example.com
+INV-10074,C042,Anchor Solutions,Digital Agency,Canada,2026-07-30,2026-08-29,10861.94,2715.49,8146.45,30,2,0.92,0,,0.0,,,Owner 2,finance42@example.com
+INV-10075,C035,Coreline Group,Staffing,UK,2026-08-08,2026-09-07,2085.38,0.0,2085.38,30,11,0.75,3,,0.0,,,Owner 3,finance35@example.com
+INV-10076,C080,Juniper Works,Staffing,USA,2026-08-01,2026-09-30,1979.9,0.0,1979.9,60,27,0.55,2,,0.0,,,Owner 8,finance80@example.com
+INV-10077,C079,Prospect Technologies,B2B SaaS,Canada,2026-08-03,2026-09-02,3577.45,0.0,3577.45,30,5,0.92,2,,0.0,,,Owner 7,finance79@example.com
+INV-10078,C059,Paragon Technologies,Logistics Tech,Australia,2026-06-24,2026-08-23,2665.3,0.0,2665.3,60,8,0.75,6,,0.0,,,Owner 3,finance59@example.com
+INV-10079,C012,Nimbus Solutions,Logistics Tech,USA,2026-08-19,2026-09-18,833.12,0.0,833.12,30,25,0.55,2,,0.0,,,Owner 4,finance12@example.com
+INV-10080,C008,Atlas Partners,B2B SaaS,Australia,2026-08-16,2026-09-15,3420.97,0.0,3420.97,30,10,0.75,0,,0.0,,,Owner 8,finance8@example.com
+INV-10081,C001,Acme Digital,Digital Agency,UK,2026-07-28,2026-08-27,1837.24,0.0,1837.24,30,26,0.55,10,,0.0,,,Owner 1,finance1@example.com
+INV-10082,C048,Radius Partners,Consulting,Canada,2026-08-13,2026-09-12,1867.7,0.0,1867.7,30,23,0.55,8,,0.0,,,Owner 8,finance48@example.com
+INV-10083,C069,Crosspoint Technologies,Logistics Tech,Australia,2026-07-28,2026-09-26,1388.27,0.0,1388.27,60,25,0.55,1,,0.0,,,Owner 5,finance69@example.com
+INV-10084,C074,Foundry Consulting,Consulting,UK,2026-08-11,2026-09-10,2274.0,0.0,2274.0,30,0,0.92,2,,0.0,,,Owner 2,finance74@example.com
+INV-10085,C052,Pulse Solutions,Staffing,UK,2026-08-22,2026-09-21,2163.97,540.99,1622.98,30,22,0.55,4,,0.0,,,Owner 4,finance52@example.com
+INV-10086,C040,Mosaic Works,Consulting,Canada,2026-08-12,2026-09-11,4848.36,0.0,4848.36,30,12,0.75,0,,0.0,,,Owner 8,finance40@example.com
+INV-10087,C052,Pulse Solutions,Staffing,UK,2026-07-20,2026-08-19,1854.25,0.0,1854.25,30,22,0.55,7,,0.0,,,Owner 4,finance52@example.com
+INV-10088,C054,Ember Consulting,Logistics Tech,Canada,2026-08-21,2026-09-05,3146.06,0.0,3146.06,15,2,0.92,7,,0.0,,,Owner 6,finance54@example.com
+INV-10089,C048,Radius Partners,Consulting,Canada,2026-07-23,2026-08-22,3648.52,0.0,3648.52,30,23,0.55,5,,0.0,,,Owner 8,finance48@example.com
+INV-10090,C043,Vista Systems,B2B SaaS,Canada,2026-07-08,2026-09-06,798.0,0.0,798.0,60,23,0.55,5,,0.0,,,Owner 3,finance43@example.com
+INV-10091,C053,Crown Systems,Consulting,UAE,2026-08-21,2026-09-05,709.18,0.0,709.18,15,25,0.55,6,,0.0,,,Owner 5,finance53@example.com
+INV-10092,C051,Meridian Digital,Staffing,UAE,2026-07-22,2026-08-21,7239.39,0.0,7239.39,30,27,0.55,6,,0.0,,,Owner 3,finance51@example.com
+INV-10093,C072,Waypoint Solutions,Logistics Tech,UAE,2026-06-22,2026-08-21,12230.93,0.0,12230.93,60,13,0.75,7,,0.0,,,Owner 8,finance72@example.com
+INV-10094,C010,Evergreen Works,Staffing,UAE,2026-07-16,2026-08-30,1403.14,0.0,1403.14,45,8,0.75,3,,0.0,,,Owner 2,finance10@example.com
+INV-10095,C005,Summit Group,Logistics Tech,Canada,2026-08-24,2026-09-08,3098.08,0.0,3098.08,15,24,0.55,8,,0.0,,,Owner 5,finance5@example.com
+INV-10096,C048,Radius Partners,Consulting,Canada,2026-08-27,2026-09-26,5872.64,0.0,5872.64,30,23,0.55,2,,0.0,,,Owner 8,finance48@example.com
+INV-10097,C048,Radius Partners,Consulting,Canada,2026-07-30,2026-08-29,651.03,0.0,651.03,30,23,0.55,2,,0.0,,,Owner 8,finance48@example.com
+INV-10098,C058,Momentum Partners,Staffing,UAE,2026-08-13,2026-08-28,1821.52,0.0,1821.52,15,0,0.92,7,,0.0,,,Owner 2,finance58@example.com
+INV-10099,C014,Sterling Consulting,Staffing,Canada,2026-07-20,2026-08-19,1667.61,0.0,1667.61,30,8,0.75,5,,0.0,,,Owner 6,finance14@example.com
+INV-10100,C026,Bridgepoint Labs,IT Services,Canada,2026-08-22,2026-09-21,1321.64,0.0,1321.64,30,11,0.75,7,,0.0,,,Owner 2,finance26@example.com
+INV-10101,C006,Northwind Labs,Logistics Tech,UK,2026-08-29,2026-09-28,3285.35,0.0,3285.35,30,11,0.75,8,,0.0,,,Owner 6,finance6@example.com
+INV-10102,C080,Juniper Works,Staffing,USA,2026-06-30,2026-08-29,857.08,0.0,857.08,60,27,0.55,5,,0.0,,,Owner 8,finance80@example.com
+INV-10103,C043,Vista Systems,B2B SaaS,Canada,2026-07-25,2026-09-23,2183.37,0.0,2183.37,60,23,0.55,9,,0.0,,,Owner 3,finance43@example.com
+INV-10104,C011,Pioneer Digital,B2B SaaS,UK,2026-08-07,2026-09-21,1223.2,0.0,1223.2,45,2,0.92,5,,0.0,,,Owner 3,finance11@example.com
+INV-10105,C085,Sequoia Group,IT Services,UK,2026-08-05,2026-09-04,902.85,0.0,902.85,30,4,0.92,3,,0.0,,,Owner 5,finance85@example.com
+INV-10106,C065,Drift Group,B2B SaaS,Australia,2026-07-22,2026-08-21,2722.29,2041.72,680.57,30,4,0.92,8,,0.0,,,Owner 1,finance65@example.com
+INV-10107,C043,Vista Systems,B2B SaaS,Canada,2026-07-16,2026-09-14,2176.2,0.0,2176.2,60,23,0.55,10,,0.0,,,Owner 3,finance43@example.com
+INV-10108,C053,Crown Systems,Consulting,UAE,2026-08-24,2026-09-08,1548.82,0.0,1548.82,15,25,0.55,10,,0.0,,,Owner 5,finance53@example.com
+INV-10109,C018,Stonebridge Partners,Staffing,UK,2026-08-18,2026-09-02,390.86,0.0,390.86,15,5,0.92,4,,0.0,,,Owner 2,finance18@example.com
+INV-10110,C086,Frontier Labs,Staffing,Canada,2026-07-13,2026-09-11,3376.42,0.0,3376.42,60,6,0.92,7,,0.0,,,Owner 6,finance86@example.com
+INV-10111,C030,Harbor Works,Logistics Tech,UAE,2026-06-24,2026-08-23,1767.23,1325.42,441.81,60,13,0.75,6,,0.0,,,Owner 6,finance30@example.com
+INV-10112,C082,Canyon Solutions,IT Services,Canada,2026-07-20,2026-08-19,2030.85,1015.43,1015.42,30,11,0.75,3,,0.0,,,Owner 2,finance82@example.com
+INV-10113,C081,Highland Digital,B2B SaaS,Canada,2026-07-05,2026-08-19,1063.51,265.87,797.63,45,6,0.92,7,,0.0,,,Owner 1,finance81@example.com
+INV-10114,C029,Oakridge Technologies,Digital Agency,UK,2026-08-16,2026-09-15,2427.48,0.0,2427.48,30,28,0.55,10,,0.0,,,Owner 5,finance29@example.com
+INV-10115,C077,Tandem Services,Staffing,USA,2026-09-14,2026-09-29,3211.07,0.0,3211.07,15,25,0.55,10,,0.0,,,Owner 5,finance77@example.com
+INV-10116,C050,Nexus Works,B2B SaaS,UK,2026-07-27,2026-08-26,2816.63,0.0,2816.63,30,10,0.75,1,,0.0,,,Owner 2,finance50@example.com
+INV-10117,C026,Bridgepoint Labs,IT Services,Canada,2026-08-27,2026-09-26,7219.1,0.0,7219.1,30,11,0.75,2,,0.0,,,Owner 2,finance26@example.com
+INV-10118,C048,Radius Partners,Consulting,Canada,2026-08-11,2026-09-10,1913.7,1435.28,478.42,30,23,0.55,5,,0.0,,,Owner 8,finance48@example.com
+INV-10119,C005,Summit Group,Logistics Tech,Canada,2026-08-07,2026-08-22,1168.28,292.07,876.21,15,24,0.55,2,,0.0,,,Owner 5,finance5@example.com
+INV-10120,C035,Coreline Group,Staffing,UK,2026-08-16,2026-09-15,2400.8,0.0,2400.8,30,11,0.75,6,,0.0,,,Owner 3,finance35@example.com
+INV-10121,C064,Sage Consulting,Staffing,Canada,2026-08-04,2026-09-18,3058.05,0.0,3058.05,45,12,0.75,5,,0.0,,,Owner 8,finance64@example.com
+INV-10122,C042,Anchor Solutions,Digital Agency,Canada,2026-07-29,2026-08-28,1759.97,0.0,1759.97,30,2,0.92,7,,0.0,,,Owner 2,finance42@example.com
+INV-10123,C052,Pulse Solutions,Staffing,UK,2026-07-26,2026-08-25,1900.76,0.0,1900.76,30,22,0.55,10,,0.0,,,Owner 4,finance52@example.com
+INV-10124,C051,Meridian Digital,Staffing,UAE,2026-08-19,2026-09-18,5157.47,0.0,5157.47,30,27,0.55,1,,0.0,,,Owner 3,finance51@example.com
+INV-10125,C026,Bridgepoint Labs,IT Services,Canada,2026-08-05,2026-09-04,916.9,458.45,458.45,30,11,0.75,7,,0.0,,,Owner 2,finance26@example.com
+INV-10126,C013,Orion Systems,IT Services,UK,2026-08-04,2026-09-03,1575.27,0.0,1575.27,30,28,0.55,0,,0.0,,,Owner 5,finance13@example.com
+INV-10127,C003,Vertex Systems,Consulting,UAE,2026-07-26,2026-09-24,897.36,0.0,897.36,60,8,0.75,6,,0.0,,,Owner 3,finance3@example.com
+INV-10128,C046,Delta Labs,Consulting,Canada,2026-07-08,2026-08-22,1948.17,0.0,1948.17,45,45,0.3,8,,0.0,,,Owner 6,finance46@example.com
+INV-10129,C075,Arcadia Group,Staffing,UK,2026-07-08,2026-09-06,2631.37,0.0,2631.37,60,24,0.55,5,,0.0,,,Owner 3,finance75@example.com
+INV-10130,C069,Crosspoint Technologies,Logistics Tech,Australia,2026-07-02,2026-08-31,1387.72,0.0,1387.72,60,25,0.55,4,,0.0,,,Owner 5,finance69@example.com
+INV-10131,C025,Westlake Group,B2B SaaS,Canada,2026-08-26,2026-09-25,1766.33,0.0,1766.33,30,27,0.55,2,,0.0,,,Owner 1,finance25@example.com
+INV-10132,C074,Foundry Consulting,Consulting,UK,2026-08-24,2026-09-23,3044.38,0.0,3044.38,30,0,0.92,4,,0.0,,,Owner 2,finance74@example.com
+INV-10133,C035,Coreline Group,Staffing,UK,2026-08-02,2026-09-01,2607.81,0.0,2607.81,30,11,0.75,9,,0.0,,,Owner 3,finance35@example.com
+INV-10134,C016,Lattice Labs,IT Services,UK,2026-08-10,2026-09-24,919.45,0.0,919.45,45,1,0.92,5,,0.0,,,Owner 8,finance16@example.com
+INV-10135,C043,Vista Systems,B2B SaaS,Canada,2026-07-16,2026-09-14,1130.92,0.0,1130.92,60,23,0.55,6,,0.0,,,Owner 3,finance43@example.com
+INV-10136,C007,Cedar Services,Logistics Tech,UAE,2026-08-07,2026-09-21,2164.16,0.0,2164.16,45,3,0.92,8,,0.0,,,Owner 7,finance7@example.com
+INV-10137,C059,Paragon Technologies,Logistics Tech,Australia,2026-07-05,2026-09-03,2989.51,0.0,2989.51,60,8,0.75,10,,0.0,,,Owner 3,finance59@example.com
+INV-10138,C075,Arcadia Group,Staffing,UK,2026-07-28,2026-09-26,719.58,359.79,359.79,60,24,0.55,1,,0.0,,,Owner 3,finance75@example.com
+INV-10139,C050,Nexus Works,B2B SaaS,UK,2026-08-31,2026-09-30,5041.45,0.0,5041.45,30,10,0.75,6,,0.0,,,Owner 2,finance50@example.com
+INV-10140,C032,Maple Solutions,Digital Agency,Canada,2026-08-03,2026-08-18,2800.33,0.0,2800.33,15,2,0.92,8,,0.0,,,Owner 8,finance32@example.com
+INV-10141,C009,Beacon Technologies,B2B SaaS,USA,2026-08-07,2026-09-06,873.41,218.35,655.06,30,13,0.75,6,,0.0,,,Owner 1,finance9@example.com
+INV-10142,C048,Radius Partners,Consulting,Canada,2026-07-22,2026-08-21,2366.45,0.0,2366.45,30,23,0.55,9,,0.0,,,Owner 8,finance48@example.com
+INV-10143,C060,Ridge Works,Staffing,UAE,2026-07-31,2026-09-29,404.58,0.0,404.58,60,4,0.92,2,,0.0,,,Owner 4,finance60@example.com
+INV-10144,C082,Canyon Solutions,IT Services,Canada,2026-07-28,2026-08-27,2529.32,0.0,2529.32,30,11,0.75,4,,0.0,,,Owner 2,finance82@example.com
+INV-10145,C003,Vertex Systems,Consulting,UAE,2026-07-28,2026-09-26,2714.17,0.0,2714.17,60,8,0.75,3,,0.0,,,Owner 3,finance3@example.com
+INV-10146,C049,Vector Technologies,Staffing,USA,2026-07-24,2026-08-23,310.38,0.0,310.38,30,26,0.55,6,,0.0,,,Owner 1,finance49@example.com
+INV-10147,C036,Fusion Labs,Staffing,UK,2026-07-18,2026-09-01,2006.42,0.0,2006.42,45,6,0.92,3,,0.0,,,Owner 4,finance36@example.com
+INV-10148,C053,Crown Systems,Consulting,UAE,2026-09-11,2026-09-26,2946.47,0.0,2946.47,15,25,0.55,4,,0.0,,,Owner 5,finance53@example.com
+INV-10149,C056,Peak Labs,Consulting,Australia,2026-08-28,2026-09-27,842.34,0.0,842.34,30,0,0.92,3,,0.0,,,Owner 8,finance56@example.com
+INV-10150,C082,Canyon Solutions,IT Services,Canada,2026-08-21,2026-09-20,1694.13,423.53,1270.6,30,11,0.75,7,,0.0,,,Owner 2,finance82@example.com
+INV-10151,C036,Fusion Labs,Staffing,UK,2026-07-17,2026-08-31,407.21,0.0,407.21,45,6,0.92,6,,0.0,,,Owner 4,finance36@example.com
+INV-10152,C073,Strata Systems,Digital Agency,UAE,2026-07-03,2026-08-17,2265.27,0.0,2265.27,45,25,0.55,5,,0.0,,,Owner 1,finance73@example.com
+INV-10153,C061,TrueNorth Digital,Consulting,UAE,2026-07-21,2026-08-20,2064.13,0.0,2064.13,30,28,0.55,4,,0.0,,,Owner 5,finance61@example.com
+INV-10154,C039,Helix Technologies,Logistics Tech,USA,2026-07-25,2026-09-08,1515.55,0.0,1515.55,45,2,0.92,6,,0.0,,,Owner 7,finance39@example.com
+INV-10155,C065,Drift Group,B2B SaaS,Australia,2026-08-01,2026-08-31,1914.36,0.0,1914.36,30,4,0.92,5,,0.0,,,Owner 1,finance65@example.com
+INV-10156,C078,Ventura Partners,Consulting,UAE,2026-07-22,2026-09-05,4280.0,0.0,4280.0,45,4,0.92,5,,0.0,,,Owner 6,finance78@example.com
+INV-10157,C065,Drift Group,B2B SaaS,Australia,2026-08-13,2026-09-12,799.97,0.0,799.97,30,4,0.92,0,,0.0,,,Owner 1,finance65@example.com
+INV-10158,C067,Kinetic Services,IT Services,USA,2026-07-12,2026-08-26,5040.69,1260.17,3780.52,45,51,0.3,4,,0.0,,,Owner 3,finance67@example.com
+INV-10159,C069,Crosspoint Technologies,Logistics Tech,Australia,2026-07-20,2026-09-18,1938.08,0.0,1938.08,60,25,0.55,6,,0.0,,,Owner 5,finance69@example.com
+INV-10160,C022,Crescent Solutions,Logistics Tech,USA,2026-09-04,2026-09-19,1317.25,0.0,1317.25,15,5,0.92,4,,0.0,,,Owner 6,finance22@example.com
+INV-10161,C027,Granite Services,Consulting,USA,2026-08-12,2026-09-26,496.09,0.0,496.09,45,11,0.75,10,,0.0,,,Owner 3,finance27@example.com
+INV-10162,C062,Axis Solutions,Digital Agency,UK,2026-08-24,2026-09-08,7433.32,0.0,7433.32,15,10,0.75,8,,0.0,,,Owner 6,finance62@example.com
+INV-10163,C025,Westlake Group,B2B SaaS,Canada,2026-08-01,2026-08-31,657.92,328.96,328.96,30,27,0.55,7,,0.0,,,Owner 1,finance25@example.com
+INV-10164,C014,Sterling Consulting,Staffing,Canada,2026-07-29,2026-08-28,537.26,0.0,537.26,30,8,0.75,1,,0.0,,,Owner 6,finance14@example.com
+INV-10165,C065,Drift Group,B2B SaaS,Australia,2026-07-25,2026-08-24,2419.24,0.0,2419.24,30,4,0.92,2,,0.0,,,Owner 1,finance65@example.com
+INV-10166,C004,BluePeak Consulting,Digital Agency,UK,2026-08-05,2026-09-19,1795.86,0.0,1795.86,45,2,0.92,7,,0.0,,,Owner 4,finance4@example.com
+INV-10167,C043,Vista Systems,B2B SaaS,Canada,2026-07-10,2026-09-08,6530.19,0.0,6530.19,60,23,0.55,8,,0.0,,,Owner 3,finance43@example.com
+INV-10168,C066,Fieldstone Labs,IT Services,UK,2026-07-11,2026-08-25,1531.34,0.0,1531.34,45,11,0.75,3,,0.0,,,Owner 2,finance66@example.com
+INV-10169,C067,Kinetic Services,IT Services,USA,2026-07-29,2026-09-12,10055.96,0.0,10055.96,45,51,0.3,4,,0.0,,,Owner 3,finance67@example.com
+INV-10170,C027,Granite Services,Consulting,USA,2026-07-16,2026-08-30,5228.19,0.0,5228.19,45,11,0.75,1,,0.0,,,Owner 3,finance27@example.com
+INV-10171,C071,Skyline Digital,Digital Agency,UAE,2026-08-05,2026-09-19,1906.86,0.0,1906.86,45,4,0.92,3,,0.0,,,Owner 7,finance71@example.com
+INV-10172,C026,Bridgepoint Labs,IT Services,Canada,2026-08-29,2026-09-28,1781.15,0.0,1781.15,30,11,0.75,2,,0.0,,,Owner 2,finance26@example.com
+INV-10173,C016,Lattice Labs,IT Services,UK,2026-07-24,2026-09-07,1087.16,0.0,1087.16,45,1,0.92,7,,0.0,,,Owner 8,finance16@example.com
+INV-10174,C058,Momentum Partners,Staffing,UAE,2026-08-05,2026-08-20,938.12,0.0,938.12,15,0,0.92,8,,0.0,,,Owner 2,finance58@example.com
+INV-10175,C004,BluePeak Consulting,Digital Agency,UK,2026-08-10,2026-09-24,350.82,0.0,350.82,45,2,0.92,2,,0.0,,,Owner 4,finance4@example.com
+INV-10176,C034,Elevate Consulting,Digital Agency,UAE,2026-07-30,2026-08-29,3286.07,0.0,3286.07,30,9,0.75,0,,0.0,,,Owner 2,finance34@example.com
+INV-10177,C031,Cobalt Digital,B2B SaaS,UAE,2026-08-12,2026-09-26,403.97,0.0,403.97,45,12,0.75,7,,0.0,,,Owner 7,finance31@example.com
+INV-10178,C004,BluePeak Consulting,Digital Agency,UK,2026-08-09,2026-09-23,1027.55,0.0,1027.55,45,2,0.92,9,,0.0,,,Owner 4,finance4@example.com
+INV-10179,C074,Foundry Consulting,Consulting,UK,2026-07-28,2026-08-27,5415.85,4061.89,1353.96,30,0,0.92,8,,0.0,,,Owner 2,finance74@example.com
+INV-10180,C013,Orion Systems,IT Services,UK,2026-08-22,2026-09-21,3443.43,0.0,3443.43,30,28,0.55,10,,0.0,,,Owner 5,finance13@example.com
+INV-10181,C072,Waypoint Solutions,Logistics Tech,UAE,2026-07-30,2026-09-28,1771.79,0.0,1771.79,60,13,0.75,7,,0.0,,,Owner 8,finance72@example.com
+INV-10182,C008,Atlas Partners,B2B SaaS,Australia,2026-07-27,2026-08-26,9377.39,0.0,9377.39,30,10,0.75,0,,0.0,,,Owner 8,finance8@example.com
+INV-10183,C082,Canyon Solutions,IT Services,Canada,2026-07-24,2026-08-23,2316.68,0.0,2316.68,30,11,0.75,4,,0.0,,,Owner 2,finance82@example.com
+INV-10184,C059,Paragon Technologies,Logistics Tech,Australia,2026-06-25,2026-08-24,2134.85,0.0,2134.85,60,8,0.75,4,,0.0,,,Owner 3,finance59@example.com
+INV-10185,C031,Cobalt Digital,B2B SaaS,UAE,2026-08-13,2026-09-27,1604.24,0.0,1604.24,45,12,0.75,1,,0.0,,,Owner 7,finance31@example.com
+INV-10186,C026,Bridgepoint Labs,IT Services,Canada,2026-08-16,2026-09-15,2537.34,0.0,2537.34,30,11,0.75,5,,0.0,,,Owner 2,finance26@example.com
+INV-10187,C038,Quantum Partners,IT Services,Canada,2026-07-22,2026-08-21,605.76,302.88,302.88,30,2,0.92,10,,0.0,,,Owner 6,finance38@example.com
+INV-10188,C082,Canyon Solutions,IT Services,Canada,2026-08-08,2026-09-07,1990.37,0.0,1990.37,30,11,0.75,4,,0.0,,,Owner 2,finance82@example.com
+INV-10189,C082,Canyon Solutions,IT Services,Canada,2026-08-06,2026-09-05,2482.46,0.0,2482.46,30,11,0.75,5,,0.0,,,Owner 2,finance82@example.com
+INV-10190,C017,BrightPath Services,IT Services,USA,2026-08-06,2026-09-05,1833.26,0.0,1833.26,30,14,0.75,5,,0.0,,,Owner 1,finance17@example.com
+INV-10191,C080,Juniper Works,Staffing,USA,2026-07-06,2026-09-04,4940.85,0.0,4940.85,60,27,0.55,6,,0.0,,,Owner 8,finance80@example.com
+INV-10192,C031,Cobalt Digital,B2B SaaS,UAE,2026-08-01,2026-09-15,1066.03,0.0,1066.03,45,12,0.75,1,,0.0,,,Owner 7,finance31@example.com
+INV-10193,C062,Axis Solutions,Digital Agency,UK,2026-08-17,2026-09-01,1716.48,0.0,1716.48,15,10,0.75,9,,0.0,,,Owner 6,finance62@example.com
+INV-10194,C006,Northwind Labs,Logistics Tech,UK,2026-08-21,2026-09-20,4701.5,0.0,4701.5,30,11,0.75,0,,0.0,,,Owner 6,finance6@example.com
+INV-10195,C067,Kinetic Services,IT Services,USA,2026-07-13,2026-08-27,5038.09,0.0,5038.09,45,51,0.3,1,,0.0,,,Owner 3,finance67@example.com
+INV-10196,C048,Radius Partners,Consulting,Canada,2026-08-14,2026-09-13,3346.85,0.0,3346.85,30,23,0.55,5,,0.0,,,Owner 8,finance48@example.com
+INV-10197,C034,Elevate Consulting,Digital Agency,UAE,2026-08-11,2026-09-10,2938.97,0.0,2938.97,30,9,0.75,5,,0.0,,,Owner 2,finance34@example.com
+INV-10198,C007,Cedar Services,Logistics Tech,UAE,2026-07-15,2026-08-29,2779.01,0.0,2779.01,45,3,0.92,1,,0.0,,,Owner 7,finance7@example.com
+INV-10199,C012,Nimbus Solutions,Logistics Tech,USA,2026-08-09,2026-09-08,718.61,0.0,718.61,30,25,0.55,7,,0.0,,,Owner 4,finance12@example.com
+INV-10200,C074,Foundry Consulting,Consulting,UK,2026-07-18,2026-08-17,2312.98,1156.49,1156.49,30,0,0.92,7,,0.0,,,Owner 2,finance74@example.com
+INV-10201,C054,Ember Consulting,Logistics Tech,Canada,2026-09-05,2026-09-20,362.38,271.78,90.6,15,2,0.92,6,,0.0,,,Owner 6,finance54@example.com
+INV-10202,C001,Acme Digital,Digital Agency,UK,2026-07-24,2026-08-23,842.66,0.0,842.66,30,26,0.55,10,,0.0,,,Owner 1,finance1@example.com
+INV-10203,C033,Vantage Systems,Consulting,USA,2026-08-08,2026-09-07,2055.07,0.0,2055.07,30,1,0.92,1,,0.0,,,Owner 1,finance33@example.com
+INV-10204,C030,Harbor Works,Logistics Tech,UAE,2026-07-18,2026-09-16,1199.32,0.0,1199.32,60,13,0.75,1,,0.0,,,Owner 6,finance30@example.com
+INV-10205,C068,Lumina Partners,B2B SaaS,UK,2026-08-07,2026-09-06,481.9,0.0,481.9,30,3,0.92,5,,0.0,,,Owner 4,finance68@example.com
+INV-10206,C071,Skyline Digital,Digital Agency,UAE,2026-08-11,2026-09-25,3693.59,923.39,2770.19,45,4,0.92,10,,0.0,,,Owner 7,finance71@example.com
+INV-10207,C028,Nova Partners,IT Services,Australia,2026-08-13,2026-09-12,1129.59,0.0,1129.59,30,6,0.92,0,,0.0,,,Owner 4,finance28@example.com
+INV-10208,C061,TrueNorth Digital,Consulting,UAE,2026-08-04,2026-09-03,9294.82,0.0,9294.82,30,28,0.55,0,,0.0,,,Owner 5,finance61@example.com
+INV-10209,C024,Keystone Consulting,Staffing,Australia,2026-07-09,2026-09-07,3236.52,0.0,3236.52,60,14,0.75,4,,0.0,,,Owner 8,finance24@example.com
+INV-10210,C074,Foundry Consulting,Consulting,UK,2026-08-20,2026-09-19,2370.97,0.0,2370.97,30,0,0.92,0,,0.0,,,Owner 2,finance74@example.com
+INV-10211,C047,Catalyst Services,Consulting,USA,2026-08-31,2026-09-30,768.45,0.0,768.45,30,2,0.92,1,,0.0,,,Owner 7,finance47@example.com
+INV-10212,C041,Signal Digital,Staffing,Canada,2026-08-13,2026-08-28,1503.11,0.0,1503.11,15,1,0.92,10,,0.0,,,Owner 1,finance41@example.com
+INV-10213,C027,Granite Services,Consulting,USA,2026-08-07,2026-09-21,3074.58,768.65,2305.94,45,11,0.75,7,,0.0,,,Owner 3,finance27@example.com
+INV-10214,C057,Clarity Services,Consulting,UAE,2026-07-15,2026-09-13,634.22,317.11,317.11,60,13,0.75,5,,0.0,,,Owner 1,finance57@example.com
+INV-10215,C081,Highland Digital,B2B SaaS,Canada,2026-07-21,2026-09-04,1019.45,0.0,1019.45,45,6,0.92,5,,0.0,,,Owner 1,finance81@example.com
+INV-10216,C034,Elevate Consulting,Digital Agency,UAE,2026-07-22,2026-08-21,2428.68,0.0,2428.68,30,9,0.75,6,,0.0,,,Owner 2,finance34@example.com
+INV-10217,C008,Atlas Partners,B2B SaaS,Australia,2026-08-06,2026-09-05,809.22,0.0,809.22,30,10,0.75,7,,0.0,,,Owner 8,finance8@example.com
+INV-10218,C030,Harbor Works,Logistics Tech,UAE,2026-06-19,2026-08-18,3835.67,0.0,3835.67,60,13,0.75,10,,0.0,,,Owner 6,finance30@example.com
+INV-10219,C087,Mariner Services,IT Services,Canada,2026-08-29,2026-09-13,1120.32,560.16,560.16,15,10,0.75,5,,0.0,,,Owner 7,finance87@example.com
+INV-10220,C086,Frontier Labs,Staffing,Canada,2026-07-23,2026-09-21,837.89,0.0,837.89,60,6,0.92,1,,0.0,,,Owner 6,finance86@example.com
+INV-10221,C021,Silverline Digital,Staffing,Canada,2026-07-16,2026-08-30,2931.74,732.94,2198.8,45,1,0.92,0,,0.0,,,Owner 5,finance21@example.com
+INV-10222,C074,Foundry Consulting,Consulting,UK,2026-07-30,2026-08-29,1075.6,0.0,1075.6,30,0,0.92,2,,0.0,,,Owner 2,finance74@example.com
+INV-10223,C010,Evergreen Works,Staffing,UAE,2026-08-12,2026-09-26,5285.15,0.0,5285.15,45,8,0.75,0,,0.0,,,Owner 2,finance10@example.com
+INV-10224,C037,Apex Services,Consulting,Australia,2026-08-01,2026-08-31,841.47,420.73,420.74,30,10,0.75,1,,0.0,,,Owner 5,finance37@example.com
+INV-10225,C031,Cobalt Digital,B2B SaaS,UAE,2026-06-10,2026-07-25,1267.68,0.0,1267.68,45,12,0.75,7,,0.0,,,Owner 7,finance31@example.com
+INV-10226,C061,TrueNorth Digital,Consulting,UAE,2026-07-09,2026-08-08,2201.85,0.0,2201.85,30,28,0.55,2,,0.0,,,Owner 5,finance61@example.com
+INV-10227,C081,Highland Digital,B2B SaaS,Canada,2026-06-08,2026-07-23,4283.09,0.0,4283.09,45,6,0.92,20,,0.0,,purchase_order,Owner 1,finance81@example.com
+INV-10228,C087,Mariner Services,IT Services,Canada,2026-07-08,2026-07-23,10013.82,0.0,10013.82,15,10,0.75,21,pending,7510.36,2026-08-23,,Owner 7,finance87@example.com
+INV-10229,C084,Briar Consulting,IT Services,Australia,2026-05-25,2026-07-24,3214.88,0.0,3214.88,60,23,0.55,19,,0.0,,,Owner 4,finance84@example.com
+INV-10230,C017,BrightPath Services,IT Services,USA,2026-06-25,2026-07-25,1415.57,353.89,1061.68,30,14,0.75,6,,0.0,,,Owner 1,finance17@example.com
+INV-10231,C050,Nexus Works,B2B SaaS,UK,2026-06-27,2026-07-27,1867.26,0.0,1867.26,30,10,0.75,1,,0.0,,,Owner 2,finance50@example.com
+INV-10232,C033,Vantage Systems,Consulting,USA,2026-06-29,2026-07-29,2109.16,0.0,2109.16,30,1,0.92,18,kept,1054.58,2026-08-13,,Owner 1,finance33@example.com
+INV-10233,C010,Evergreen Works,Staffing,UAE,2026-06-20,2026-08-04,3701.22,0.0,3701.22,45,8,0.75,1,,0.0,,approval_pending,Owner 2,finance10@example.com
+INV-10234,C021,Silverline Digital,Staffing,Canada,2026-06-13,2026-07-28,2049.95,0.0,2049.95,45,1,0.92,15,,0.0,,,Owner 5,finance21@example.com
+INV-10235,C010,Evergreen Works,Staffing,UAE,2026-06-07,2026-07-22,1594.13,0.0,1594.13,45,8,0.75,12,,0.0,,,Owner 2,finance10@example.com
+INV-10236,C011,Pioneer Digital,B2B SaaS,UK,2026-06-05,2026-07-20,1386.61,0.0,1386.61,45,2,0.92,16,,0.0,,,Owner 3,finance11@example.com
+INV-10237,C043,Vista Systems,B2B SaaS,Canada,2026-06-09,2026-08-08,1768.07,0.0,1768.07,60,23,0.55,5,,0.0,,,Owner 3,finance43@example.com
+INV-10238,C034,Elevate Consulting,Digital Agency,UAE,2026-07-12,2026-08-11,8097.04,0.0,8097.04,30,9,0.75,19,,0.0,,,Owner 2,finance34@example.com
+INV-10239,C007,Cedar Services,Logistics Tech,UAE,2026-06-02,2026-07-17,1872.32,0.0,1872.32,45,3,0.92,14,,0.0,,,Owner 7,finance7@example.com
+INV-10240,C008,Atlas Partners,B2B SaaS,Australia,2026-07-12,2026-08-11,2910.39,0.0,2910.39,30,10,0.75,12,,0.0,,,Owner 8,finance8@example.com
+INV-10241,C035,Coreline Group,Staffing,UK,2026-06-24,2026-07-24,5880.89,0.0,5880.89,30,11,0.75,11,,0.0,,,Owner 3,finance35@example.com
+INV-10242,C018,Stonebridge Partners,Staffing,UK,2026-07-07,2026-07-22,631.12,0.0,631.12,15,5,0.92,16,,0.0,,,Owner 2,finance18@example.com
+INV-10243,C058,Momentum Partners,Staffing,UAE,2026-07-13,2026-07-28,1047.0,523.5,523.5,15,0,0.92,3,kept,392.63,2026-08-08,,Owner 2,finance58@example.com
+INV-10244,C015,Redwood Group,Staffing,Canada,2026-07-09,2026-08-08,2538.85,0.0,2538.85,30,10,0.75,15,,0.0,,,Owner 7,finance15@example.com
+INV-10245,C005,Summit Group,Logistics Tech,Canada,2026-07-04,2026-07-19,2314.47,0.0,2314.47,15,24,0.55,8,missed,1735.85,2026-08-15,,Owner 5,finance5@example.com
+INV-10246,C052,Pulse Solutions,Staffing,UK,2026-06-22,2026-07-22,5206.22,0.0,5206.22,30,22,0.55,19,missed,5206.22,2026-08-12,,Owner 4,finance52@example.com
+INV-10247,C082,Canyon Solutions,IT Services,Canada,2026-06-27,2026-07-27,1098.62,0.0,1098.62,30,11,0.75,20,pending,1098.62,2026-08-23,,Owner 2,finance82@example.com
+INV-10248,C047,Catalyst Services,Consulting,USA,2026-06-30,2026-07-30,772.03,386.02,386.01,30,2,0.92,22,,0.0,,,Owner 7,finance47@example.com
+INV-10249,C080,Juniper Works,Staffing,USA,2026-05-23,2026-07-22,906.43,0.0,906.43,60,27,0.55,6,pending,453.22,2026-08-23,,Owner 8,finance80@example.com
+INV-10250,C004,BluePeak Consulting,Digital Agency,UK,2026-06-15,2026-07-30,863.71,0.0,863.71,45,2,0.92,9,pending,647.78,2026-08-23,,Owner 4,finance4@example.com
+INV-10251,C010,Evergreen Works,Staffing,UAE,2026-06-28,2026-08-12,3919.98,0.0,3919.98,45,8,0.75,15,,0.0,,,Owner 2,finance10@example.com
+INV-10252,C040,Mosaic Works,Consulting,Canada,2026-07-09,2026-08-08,1154.56,0.0,1154.56,30,12,0.75,12,,0.0,,,Owner 8,finance40@example.com
+INV-10253,C056,Peak Labs,Consulting,Australia,2026-07-15,2026-08-14,1625.1,0.0,1625.1,30,0,0.92,4,,0.0,,,Owner 8,finance56@example.com
+INV-10254,C019,Clearwater Technologies,B2B SaaS,USA,2026-06-30,2026-07-30,1023.49,0.0,1023.49,30,2,0.92,4,,0.0,,,Owner 3,finance19@example.com
+INV-10255,C075,Arcadia Group,Staffing,UK,2026-06-08,2026-08-07,625.25,0.0,625.25,60,24,0.55,20,,0.0,,,Owner 3,finance75@example.com
+INV-10256,C010,Evergreen Works,Staffing,UAE,2026-06-20,2026-08-04,4473.48,0.0,4473.48,45,8,0.75,9,,0.0,,,Owner 2,finance10@example.com
+INV-10257,C052,Pulse Solutions,Staffing,UK,2026-06-25,2026-07-25,1146.82,0.0,1146.82,30,22,0.55,14,,0.0,,,Owner 4,finance52@example.com
+INV-10258,C038,Quantum Partners,IT Services,Canada,2026-07-14,2026-08-13,1346.23,0.0,1346.23,30,2,0.92,18,,0.0,,pricing,Owner 6,finance38@example.com
+INV-10259,C025,Westlake Group,B2B SaaS,Canada,2026-06-27,2026-07-27,5922.15,2961.08,2961.08,30,27,0.55,11,,0.0,,,Owner 1,finance25@example.com
+INV-10260,C002,Horizon Solutions,Logistics Tech,Australia,2026-06-17,2026-08-01,577.78,0.0,577.78,45,9,0.75,15,,0.0,,,Owner 2,finance2@example.com
+INV-10261,C025,Westlake Group,B2B SaaS,Canada,2026-07-15,2026-08-14,12674.43,0.0,12674.43,30,27,0.55,16,,0.0,,,Owner 1,finance25@example.com
+INV-10262,C020,Ironwood Works,IT Services,UK,2026-07-04,2026-08-03,710.13,0.0,710.13,30,6,0.92,8,,0.0,,approval_pending,Owner 4,finance20@example.com
+INV-10263,C002,Horizon Solutions,Logistics Tech,Australia,2026-06-13,2026-07-28,1407.34,0.0,1407.34,45,9,0.75,5,,0.0,,,Owner 2,finance2@example.com
+INV-10264,C023,Aurora Systems,Consulting,Canada,2026-06-19,2026-07-19,2418.69,0.0,2418.69,30,11,0.75,12,,0.0,,,Owner 7,finance23@example.com
+INV-10265,C087,Mariner Services,IT Services,Canada,2026-07-08,2026-07-23,2138.43,0.0,2138.43,15,10,0.75,8,,0.0,,,Owner 7,finance87@example.com
+INV-10266,C041,Signal Digital,Staffing,Canada,2026-07-11,2026-07-26,823.04,0.0,823.04,15,1,0.92,7,,0.0,,,Owner 1,finance41@example.com
+INV-10267,C032,Maple Solutions,Digital Agency,Canada,2026-07-24,2026-08-08,3069.99,0.0,3069.99,15,2,0.92,12,,0.0,,,Owner 8,finance32@example.com
+INV-10268,C038,Quantum Partners,IT Services,Canada,2026-06-19,2026-07-19,1112.04,0.0,1112.04,30,2,0.92,13,,0.0,,,Owner 6,finance38@example.com
+INV-10269,C026,Bridgepoint Labs,IT Services,Canada,2026-07-04,2026-08-03,2742.76,0.0,2742.76,30,11,0.75,21,,0.0,,,Owner 2,finance26@example.com
+INV-10270,C061,TrueNorth Digital,Consulting,UAE,2026-06-24,2026-07-24,856.57,0.0,856.57,30,28,0.55,6,missed,428.29,2026-08-13,,Owner 5,finance61@example.com
+INV-10271,C057,Clarity Services,Consulting,UAE,2026-05-31,2026-07-30,3198.18,0.0,3198.18,60,13,0.75,16,,0.0,,,Owner 1,finance57@example.com
+INV-10272,C001,Acme Digital,Digital Agency,UK,2026-06-29,2026-07-29,1943.41,0.0,1943.41,30,26,0.55,1,pending,1943.41,2026-08-22,,Owner 1,finance1@example.com
+INV-10273,C062,Axis Solutions,Digital Agency,UK,2026-07-13,2026-07-28,1423.38,0.0,1423.38,15,10,0.75,12,,0.0,,,Owner 6,finance62@example.com
+INV-10274,C017,BrightPath Services,IT Services,USA,2026-06-28,2026-07-28,4491.52,0.0,4491.52,30,14,0.75,20,kept,3368.64,2026-08-11,,Owner 1,finance17@example.com
+INV-10275,C006,Northwind Labs,Logistics Tech,UK,2026-07-01,2026-07-31,1113.34,0.0,1113.34,30,11,0.75,2,,0.0,,,Owner 6,finance6@example.com
+INV-10276,C076,Bayside Labs,Digital Agency,UK,2026-06-17,2026-07-17,3147.43,0.0,3147.43,30,9,0.75,22,missed,1573.72,2026-08-08,,Owner 4,finance76@example.com
+INV-10277,C070,Riverbend Works,IT Services,Australia,2026-06-24,2026-08-08,8689.59,0.0,8689.59,45,3,0.92,22,,0.0,,approval_pending,Owner 6,finance70@example.com
+INV-10278,C083,Cascade Systems,B2B SaaS,USA,2026-06-02,2026-08-01,3708.06,0.0,3708.06,60,8,0.75,20,,0.0,,,Owner 3,finance83@example.com
+INV-10279,C084,Briar Consulting,IT Services,Australia,2026-05-20,2026-07-19,2273.2,1704.9,568.3,60,23,0.55,22,,0.0,,,Owner 4,finance84@example.com
+INV-10280,C083,Cascade Systems,B2B SaaS,USA,2026-06-07,2026-08-06,513.03,0.0,513.03,60,8,0.75,16,,0.0,,,Owner 3,finance83@example.com
+INV-10281,C024,Keystone Consulting,Staffing,Australia,2026-04-26,2026-06-25,1203.35,300.84,902.52,60,14,0.75,5,,0.0,,,Owner 8,finance24@example.com
+INV-10282,C019,Clearwater Technologies,B2B SaaS,USA,2026-05-29,2026-06-28,1442.13,0.0,1442.13,30,2,0.92,11,,0.0,,,Owner 3,finance19@example.com
+INV-10283,C024,Keystone Consulting,Staffing,Australia,2026-04-28,2026-06-27,1541.86,0.0,1541.86,60,14,0.75,4,missed,1541.86,2026-08-09,,Owner 8,finance24@example.com
+INV-10284,C080,Juniper Works,Staffing,USA,2026-04-22,2026-06-21,2059.85,0.0,2059.85,60,27,0.55,21,,0.0,,,Owner 8,finance80@example.com
+INV-10285,C031,Cobalt Digital,B2B SaaS,UAE,2026-06-01,2026-07-16,4362.08,0.0,4362.08,45,12,0.75,4,pending,3271.56,2026-08-21,,Owner 7,finance31@example.com
+INV-10286,C079,Prospect Technologies,B2B SaaS,Canada,2026-05-18,2026-06-17,1710.02,0.0,1710.02,30,5,0.92,10,,0.0,,,Owner 7,finance79@example.com
+INV-10287,C011,Pioneer Digital,B2B SaaS,UK,2026-05-11,2026-06-25,1130.41,0.0,1130.41,45,2,0.92,3,pending,847.81,2026-08-17,,Owner 3,finance11@example.com
+INV-10288,C030,Harbor Works,Logistics Tech,UAE,2026-04-23,2026-06-22,1770.72,0.0,1770.72,60,13,0.75,7,,0.0,,,Owner 6,finance30@example.com
+INV-10289,C040,Mosaic Works,Consulting,Canada,2026-06-07,2026-07-07,4671.79,0.0,4671.79,30,12,0.75,2,,0.0,,,Owner 8,finance40@example.com
+INV-10290,C058,Momentum Partners,Staffing,UAE,2026-07-01,2026-07-16,3486.81,1743.4,1743.4,15,0,0.92,13,,0.0,,,Owner 2,finance58@example.com
+INV-10291,C054,Ember Consulting,Logistics Tech,Canada,2026-06-13,2026-06-28,1332.29,0.0,1332.29,15,2,0.92,4,,0.0,,,Owner 6,finance54@example.com
+INV-10292,C056,Peak Labs,Consulting,Australia,2026-05-29,2026-06-28,8735.36,2183.84,6551.52,30,0,0.92,16,pending,4913.64,2026-08-23,,Owner 8,finance56@example.com
+INV-10293,C030,Harbor Works,Logistics Tech,UAE,2026-04-19,2026-06-18,744.37,0.0,744.37,60,13,0.75,21,,0.0,,invoice_error,Owner 6,finance30@example.com
+INV-10294,C086,Frontier Labs,Staffing,Canada,2026-04-19,2026-06-18,812.49,609.37,203.12,60,6,0.92,5,missed,203.12,2026-08-12,,Owner 6,finance86@example.com
+INV-10295,C046,Delta Labs,Consulting,Canada,2026-05-11,2026-06-25,3211.42,802.86,2408.57,45,45,0.3,14,missed,1806.43,2026-08-15,,Owner 6,finance46@example.com
+INV-10296,C061,TrueNorth Digital,Consulting,UAE,2026-05-21,2026-06-20,967.55,0.0,967.55,30,28,0.55,8,,0.0,,,Owner 5,finance61@example.com
+INV-10297,C086,Frontier Labs,Staffing,Canada,2026-05-06,2026-07-05,5130.55,0.0,5130.55,60,6,0.92,9,,0.0,,,Owner 6,finance86@example.com
+INV-10298,C048,Radius Partners,Consulting,Canada,2026-05-25,2026-06-24,864.54,216.14,648.4,30,23,0.55,14,pending,486.3,2026-08-21,,Owner 8,finance48@example.com
+INV-10299,C082,Canyon Solutions,IT Services,Canada,2026-06-02,2026-07-02,4755.8,0.0,4755.8,30,11,0.75,16,,0.0,,,Owner 2,finance82@example.com
+INV-10300,C051,Meridian Digital,Staffing,UAE,2026-06-06,2026-07-06,2145.59,0.0,2145.59,30,27,0.55,10,pending,1609.2,2026-08-19,,Owner 3,finance51@example.com
+INV-10301,C046,Delta Labs,Consulting,Canada,2026-05-04,2026-06-18,2304.16,0.0,2304.16,45,45,0.3,8,missed,1152.08,2026-08-14,,Owner 6,finance46@example.com
+INV-10302,C013,Orion Systems,IT Services,UK,2026-06-09,2026-07-09,2610.49,0.0,2610.49,30,28,0.55,8,,0.0,,,Owner 5,finance13@example.com
+INV-10303,C069,Crosspoint Technologies,Logistics Tech,Australia,2026-05-14,2026-07-13,1129.03,0.0,1129.03,60,25,0.55,5,,0.0,,,Owner 5,finance69@example.com
+INV-10304,C072,Waypoint Solutions,Logistics Tech,UAE,2026-05-10,2026-07-09,2624.14,0.0,2624.14,60,13,0.75,18,,0.0,,,Owner 8,finance72@example.com
+INV-10305,C020,Ironwood Works,IT Services,UK,2026-06-03,2026-07-03,798.91,0.0,798.91,30,6,0.92,20,,0.0,,approval_pending,Owner 4,finance20@example.com
+INV-10306,C016,Lattice Labs,IT Services,UK,2026-05-17,2026-07-01,2478.08,0.0,2478.08,45,1,0.92,1,,0.0,,,Owner 8,finance16@example.com
+INV-10307,C029,Oakridge Technologies,Digital Agency,UK,2026-06-08,2026-07-08,1654.84,0.0,1654.84,30,28,0.55,21,,0.0,,,Owner 5,finance29@example.com
+INV-10308,C078,Ventura Partners,Consulting,UAE,2026-04-12,2026-05-27,2632.4,0.0,2632.4,45,4,0.92,16,,0.0,,,Owner 6,finance78@example.com
+INV-10309,C081,Highland Digital,B2B SaaS,Canada,2026-04-10,2026-05-25,12113.06,0.0,12113.06,45,6,0.92,1,,0.0,,pricing,Owner 1,finance81@example.com
+INV-10310,C026,Bridgepoint Labs,IT Services,Canada,2026-04-23,2026-05-23,1046.24,0.0,1046.24,30,11,0.75,22,pending,1046.24,2026-08-22,,Owner 2,finance26@example.com
+INV-10311,C002,Horizon Solutions,Logistics Tech,Australia,2026-04-28,2026-06-12,1314.95,986.22,328.74,45,9,0.75,19,,0.0,,invoice_error,Owner 2,finance2@example.com
+INV-10312,C062,Axis Solutions,Digital Agency,UK,2026-05-13,2026-05-28,7036.46,0.0,7036.46,15,10,0.75,17,,0.0,,,Owner 6,finance62@example.com
+INV-10313,C015,Redwood Group,Staffing,Canada,2026-05-12,2026-06-11,1313.93,656.96,656.96,30,10,0.75,11,missed,492.72,2026-08-09,,Owner 7,finance15@example.com
+INV-10314,C077,Tandem Services,Staffing,USA,2026-05-12,2026-05-27,1994.91,0.0,1994.91,15,25,0.55,21,pending,1496.18,2026-08-19,,Owner 5,finance77@example.com
+INV-10315,C086,Frontier Labs,Staffing,Canada,2026-04-05,2026-06-04,3710.42,0.0,3710.42,60,6,0.92,11,,0.0,,,Owner 6,finance86@example.com
+INV-10316,C025,Westlake Group,B2B SaaS,Canada,2026-05-02,2026-06-01,2066.77,0.0,2066.77,30,27,0.55,18,,0.0,,,Owner 1,finance25@example.com
+INV-10317,C023,Aurora Systems,Consulting,Canada,2026-04-22,2026-05-22,2317.02,0.0,2317.02,30,11,0.75,9,,0.0,,,Owner 7,finance23@example.com
+INV-10318,C009,Beacon Technologies,B2B SaaS,USA,2026-05-16,2026-06-15,2017.0,0.0,2017.0,30,13,0.75,9,pending,1008.5,2026-08-17,,Owner 1,finance9@example.com
+INV-10319,C079,Prospect Technologies,B2B SaaS,Canada,2026-05-14,2026-06-13,1396.67,0.0,1396.67,30,5,0.92,22,,0.0,,,Owner 7,finance79@example.com
+INV-10320,C033,Vantage Systems,Consulting,USA,2026-04-18,2026-05-18,2115.3,1057.65,1057.65,30,1,0.92,1,,0.0,,,Owner 1,finance33@example.com
+INV-10321,C063,Monarch Systems,Consulting,USA,2026-05-14,2026-06-13,1284.46,0.0,1284.46,30,9,0.75,18,,0.0,,,Owner 7,finance63@example.com
+INV-10322,C018,Stonebridge Partners,Staffing,UK,2026-05-28,2026-06-12,4320.7,1080.18,3240.52,15,5,0.92,10,,0.0,,,Owner 2,finance18@example.com
+INV-10323,C057,Clarity Services,Consulting,UAE,2026-04-03,2026-06-02,2364.8,0.0,2364.8,60,13,0.75,15,,0.0,,,Owner 1,finance57@example.com
+INV-10324,C004,BluePeak Consulting,Digital Agency,UK,2026-04-29,2026-06-13,6960.24,1740.06,5220.19,45,2,0.92,20,pending,3915.14,2026-08-23,,Owner 4,finance4@example.com
+INV-10325,C025,Westlake Group,B2B SaaS,Canada,2026-04-19,2026-05-19,16553.73,0.0,16553.73,30,27,0.55,9,,0.0,,,Owner 1,finance25@example.com
+INV-10326,C032,Maple Solutions,Digital Agency,Canada,2026-05-27,2026-06-11,2199.33,0.0,2199.33,15,2,0.92,18,,0.0,,,Owner 8,finance32@example.com
+INV-10327,C002,Horizon Solutions,Logistics Tech,Australia,2026-02-07,2026-03-24,4279.52,0.0,4279.52,45,9,0.75,6,missed,2139.76,2026-08-15,,Owner 2,finance2@example.com
+INV-10328,C002,Horizon Solutions,Logistics Tech,Australia,2026-03-14,2026-04-28,2981.83,745.46,2236.37,45,9,0.75,4,,0.0,,,Owner 2,finance2@example.com
+INV-10329,C019,Clearwater Technologies,B2B SaaS,USA,2026-03-25,2026-04-24,2701.8,0.0,2701.8,30,2,0.92,22,,0.0,,,Owner 3,finance19@example.com
+INV-10330,C034,Elevate Consulting,Digital Agency,UAE,2026-04-13,2026-05-13,1947.53,0.0,1947.53,30,9,0.75,13,,0.0,,approval_pending,Owner 2,finance34@example.com
+INV-10331,C016,Lattice Labs,IT Services,UK,2026-02-08,2026-03-25,2363.74,0.0,2363.74,45,1,0.92,3,,0.0,,,Owner 8,finance16@example.com
+INV-10332,C038,Quantum Partners,IT Services,Canada,2026-03-09,2026-04-08,2993.78,0.0,2993.78,30,2,0.92,6,,0.0,,,Owner 6,finance38@example.com
+INV-10333,C050,Nexus Works,B2B SaaS,UK,2026-03-26,2026-04-25,2078.69,0.0,2078.69,30,10,0.75,4,pending,1559.02,2026-08-17,,Owner 2,finance50@example.com
+INV-10334,C047,Catalyst Services,Consulting,USA,2026-04-06,2026-05-06,5257.11,0.0,5257.11,30,2,0.92,22,,0.0,,purchase_order,Owner 7,finance47@example.com
+INV-10335,C003,Vertex Systems,Consulting,UAE,2026-02-16,2026-04-17,2200.76,0.0,2200.76,60,8,0.75,14,missed,1100.38,2026-08-10,,Owner 3,finance3@example.com
+INV-10336,C037,Apex Services,Consulting,Australia,2026-04-01,2026-05-01,9463.67,0.0,9463.67,30,10,0.75,16,,0.0,,invoice_error,Owner 5,finance37@example.com
+INV-10337,C014,Sterling Consulting,Staffing,Canada,2026-03-20,2026-04-19,12289.86,0.0,12289.86,30,8,0.75,16,,0.0,,,Owner 6,finance14@example.com
+INV-10338,C046,Delta Labs,Consulting,Canada,2026-02-11,2026-03-28,4115.41,0.0,4115.41,45,45,0.3,1,pending,3086.56,2026-08-17,invoice_error,Owner 6,finance46@example.com
+INV-10339,C013,Orion Systems,IT Services,UK,2026-03-20,2026-04-19,14640.79,0.0,14640.79,30,28,0.55,21,pending,10980.6,2026-08-16,,Owner 5,finance13@example.com
+INV-10340,C050,Nexus Works,B2B SaaS,UK,2026-02-24,2026-03-26,1352.49,0.0,1352.49,30,10,0.75,1,pending,1352.49,2026-08-21,,Owner 2,finance50@example.com
+INV-10341,C024,Keystone Consulting,Staffing,Australia,2026-02-08,2026-04-09,961.44,0.0,961.44,60,14,0.75,21,pending,480.72,2026-08-21,,Owner 8,finance24@example.com
+INV-10342,C080,Juniper Works,Staffing,USA,2026-02-05,2026-04-06,2884.83,0.0,2884.83,60,27,0.55,15,missed,1442.41,2026-08-10,,Owner 8,finance80@example.com

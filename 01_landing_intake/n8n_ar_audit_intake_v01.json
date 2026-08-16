@@ -1,0 +1,192 @@
+{
+  "name": "CollectIQ - AR Audit Intake v0.1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "collectiq-audit-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Audit Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL + '/rest/v1/audit_leads?id=eq.' + $json.body.lead_id + '&select=*'}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "getlead",
+      "name": "Load Lead from Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.first().json;\nconst lead = Array.isArray(rows) ? rows[0] : rows;\nif (!lead || !lead.id) throw new Error('Lead not found');\nreturn [{json: lead}];"
+      },
+      "id": "normalize",
+      "name": "Normalize Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{$env.SUPABASE_URL + '/rest/v1/audit_leads?id=eq.' + $json.id}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{JSON.stringify({status:'validating'})}}",
+        "options": {}
+      },
+      "id": "markvalidating",
+      "name": "Mark Validating",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Placeholder validation gate.\n// Next step: call CollectIQ Audit Engine with lead id + file path.\n// The engine should download the private file using service-role credentials,\n// map columns, validate data, compute AR metrics, and return structured JSON.\nreturn [{\n  json: {\n    lead_id: $('Normalize Lead').first().json.id,\n    file_path: $('Normalize Lead').first().json.file_path,\n    next_action: 'CALL_AUDIT_ENGINE'\n  }\n}];"
+      },
+      "id": "engineplaceholder",
+      "name": "Audit Engine Placeholder",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{JSON.stringify({ok:true, lead_id:$json.lead_id, status:'queued_for_audit'})}}",
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1100,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Audit Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Load Lead from Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Lead from Supabase": {
+      "main": [
+        [
+          {
+            "node": "Normalize Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Lead": {
+      "main": [
+        [
+          {
+            "node": "Mark Validating",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Validating": {
+      "main": [
+        [
+          {
+            "node": "Audit Engine Placeholder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audit Engine Placeholder": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "collectiq-audit-intake-v01"
+}

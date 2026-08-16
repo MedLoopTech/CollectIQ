@@ -1,0 +1,141 @@
+{
+  "name": "CollectIQ - Send Approved Audit v0.1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "collectiq-send-audit",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Send Audit Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL + '/rest/v1/audit_leads?id=eq.' + $json.body.lead_id + '&select=*'}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "lead",
+      "name": "Load Approved Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows=$input.first().json; const lead=Array.isArray(rows)?rows[0]:rows;\nif(!lead) throw new Error('Lead not found');\nif(lead.status!=='audit_ready') throw new Error('Audit is not approved');\nreturn [{json:lead}];"
+      },
+      "id": "gate",
+      "name": "Approval Gate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead=$json; const m=(lead.audit_summary||{}).metrics||{};\nreturn [{json:{\n  lead_id:lead.id,\n  recipient:lead.work_email,\n  company:lead.company_name,\n  subject:`Your CollectIQ AR Intelligence Audit - ${lead.company_name}`,\n  body:`Your AR Intelligence Audit is ready.\\n\\nTotal AR: ${m.total_ar ?? 'n/a'}\\nOverdue AR: ${m.overdue_ar ?? 'n/a'}\\nPriority pool: ${m.priority_pool ?? 'n/a'}\\nAR Health Score: ${m.ar_health_score ?? 'n/a'}\\n\\nThe attached/full report should be reviewed with your finance team before acting on customer-sensitive items.`\n}}];"
+      },
+      "id": "payload",
+      "name": "Build Send Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{JSON.stringify({ok:true,status:'approved_for_send',lead_id:$json.lead_id,recipient:$json.recipient})}}",
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        880,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Send Audit Webhook": {
+      "main": [
+        [
+          {
+            "node": "Load Approved Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Approved Lead": {
+      "main": [
+        [
+          {
+            "node": "Approval Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approval Gate": {
+      "main": [
+        [
+          {
+            "node": "Build Send Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Send Payload": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "collectiq-send-approved-audit-v01"
+}

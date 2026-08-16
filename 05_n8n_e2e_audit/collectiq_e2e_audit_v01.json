@@ -1,0 +1,553 @@
+{
+  "name": "CollectIQ - End-to-End AR Audit v0.1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "collectiq-audit-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Audit Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL + '/rest/v1/audit_leads?id=eq.' + $json.body.lead_id + '&select=*'}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "loadlead",
+      "name": "Load Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.first().json;\nconst lead = Array.isArray(rows) ? rows[0] : rows;\nif (!lead || !lead.id) throw new Error('Lead not found');\nreturn [{json: lead}];"
+      },
+      "id": "normalize",
+      "name": "Normalize Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{$env.SUPABASE_URL + '/rest/v1/audit_leads?id=eq.' + $json.id}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{JSON.stringify({status:'validating'})}}",
+        "options": {}
+      },
+      "id": "markvalidating",
+      "name": "Mark Validating",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SUPABASE_URL + '/storage/v1/object/sign/ar-intake/' + encodeURIComponent($('Normalize Lead').first().json.file_path)}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{JSON.stringify({expiresIn:600})}}",
+        "options": {}
+      },
+      "id": "signurl",
+      "name": "Create Signed File URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Normalize Lead').first().json;\nconst signed = $input.first().json;\nconst signedURL = signed.signedURL || signed.signedUrl || signed.signed_url;\nif (!signedURL) throw new Error('Supabase did not return a signed URL');\nreturn [{json:{\n  ...lead,\n  signed_file_url: $env.SUPABASE_URL + '/storage/v1' + signedURL\n}}];"
+      },
+      "id": "buildurl",
+      "name": "Build Signed URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$json.signed_file_url}}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "downloadfile",
+      "name": "Download AR File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.COLLECTIQ_AUDIT_ENGINE_URL + '/audit/upload'}}",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "as_of",
+              "value": "={{$now.toISODate()}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "callengine",
+      "name": "Call Audit Engine",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "statuscheck",
+              "leftValue": "={{$json.status}}",
+              "rightValue": "validation_failed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ifvalidation",
+      "name": "Validation Failed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{$env.SUPABASE_URL + '/rest/v1/audit_leads?id=eq.' + $('Normalize Lead').first().json.id}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{JSON.stringify({status:'needs_review', validation_summary:$json.validation, audit_summary:$json})}}",
+        "options": {}
+      },
+      "id": "savefailure",
+      "name": "Save Validation Failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{$env.SUPABASE_URL + '/rest/v1/audit_leads?id=eq.' + $('Normalize Lead').first().json.id}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{JSON.stringify({status:'needs_review', validation_summary:$json.validation, audit_summary:$json})}}",
+        "options": {}
+      },
+      "id": "savesuccess",
+      "name": "Save Audit Results",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SUPABASE_URL + '/rest/v1/audit_events'}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{JSON.stringify({lead_id:$('Normalize Lead').first().json.id,event_type:'audit_ready_for_review',message:'Audit completed and requires human review',payload:{status:$('Call Audit Engine').first().json.status,metrics:$('Call Audit Engine').first().json.metrics || null}})}}",
+        "options": {}
+      },
+      "id": "event",
+      "name": "Create Review Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2200,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Normalize Lead').first().json;\nconst audit = $('Call Audit Engine').first().json;\nconst m = audit.metrics || {};\nreturn [{\n  json:{\n    subject:`CollectIQ audit ready: ${lead.company_name}`,\n    message:[\n      `Company: ${lead.company_name}`,\n      `Contact: ${lead.contact_name} <${lead.work_email}>`,\n      `Status: ${audit.status}`,\n      `Total AR: ${m.total_ar ?? 'n/a'}`,\n      `Overdue AR: ${m.overdue_ar ?? 'n/a'}`,\n      `Priority pool: ${m.priority_pool ?? 'n/a'}`,\n      `AR Health Score: ${m.ar_health_score ?? 'n/a'}`,\n      `Review lead id: ${lead.id}`\n    ].join('\\n')\n  }\n}];"
+      },
+      "id": "notifypayload",
+      "name": "Build Review Notification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{JSON.stringify({ok:true,lead_id:$('Normalize Lead').first().json.id,status:'needs_review'})}}",
+        "options": {}
+      },
+      "id": "respondsuccess",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2640,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{JSON.stringify({ok:false,lead_id:$('Normalize Lead').first().json.id,status:'needs_review',reason:'validation_failed'})}}",
+        "options": {}
+      },
+      "id": "respondfailure",
+      "name": "Respond Validation Failure",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2200,
+        -160
+      ]
+    }
+  ],
+  "connections": {
+    "Audit Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Load Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Lead": {
+      "main": [
+        [
+          {
+            "node": "Normalize Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Lead": {
+      "main": [
+        [
+          {
+            "node": "Mark Validating",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Validating": {
+      "main": [
+        [
+          {
+            "node": "Create Signed File URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Signed File URL": {
+      "main": [
+        [
+          {
+            "node": "Build Signed URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Signed URL": {
+      "main": [
+        [
+          {
+            "node": "Download AR File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download AR File": {
+      "main": [
+        [
+          {
+            "node": "Call Audit Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Audit Engine": {
+      "main": [
+        [
+          {
+            "node": "Validation Failed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validation Failed?": {
+      "main": [
+        [
+          {
+            "node": "Save Validation Failure",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save Audit Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Validation Failure": {
+      "main": [
+        [
+          {
+            "node": "Respond Validation Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Audit Results": {
+      "main": [
+        [
+          {
+            "node": "Create Review Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Review Event": {
+      "main": [
+        [
+          {
+            "node": "Build Review Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Review Notification": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "collectiq-e2e-audit-v01"
+}

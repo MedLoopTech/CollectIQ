@@ -1,0 +1,299 @@
+{
+  "engine_version": "0.1.0",
+  "as_of": "2026-08-16",
+  "status": "needs_review",
+  "source_file": "northstar_sample.csv",
+  "mapping": {
+    "mapping": {
+      "customer_name": "customer_name",
+      "customer_id": "customer_id",
+      "invoice_number": "invoice_number",
+      "invoice_date": "invoice_date",
+      "due_date": "due_date",
+      "invoice_amount": "invoice_amount",
+      "amount_paid": "amount_paid",
+      "outstanding_amount": "outstanding_amount",
+      "payment_terms_days": "payment_terms_days",
+      "avg_days_late": "avg_days_late",
+      "promise_reliability": "promise_reliability",
+      "last_contact_days": "last_contact_days",
+      "promise_status": "promise_status",
+      "promise_amount": "promise_amount",
+      "promise_date": "promise_date",
+      "dispute_type": "dispute_type",
+      "sales_owner": "sales_owner",
+      "email": "email"
+    },
+    "mapping_collisions": {},
+    "original_columns": [
+      "invoice_number",
+      "customer_id",
+      "customer_name",
+      "industry",
+      "country",
+      "invoice_date",
+      "due_date",
+      "invoice_amount",
+      "amount_paid",
+      "outstanding_amount",
+      "payment_terms_days",
+      "avg_days_late",
+      "promise_reliability",
+      "last_contact_days",
+      "promise_status",
+      "promise_amount",
+      "promise_date",
+      "dispute_type",
+      "sales_owner",
+      "email"
+    ]
+  },
+  "validation": {
+    "valid": true,
+    "error_count": 0,
+    "warning_count": 0,
+    "errors": [],
+    "warnings": [],
+    "row_count": 342
+  },
+  "metrics": {
+    "open_invoices": 342,
+    "customers": 85,
+    "total_ar": 823999.92,
+    "overdue_ar": 346179.71,
+    "ar_60_plus": 141005.12,
+    "ar_90_plus": 71767.79,
+    "disputed_ar": 53499.06,
+    "missed_promise_value": 18822.84,
+    "priority_pool": 78722.14,
+    "top10_concentration": 0.271071,
+    "overdue_ratio": 0.420121,
+    "ar_health_score": 33.5,
+    "ar_health_label": "Critical"
+  },
+  "top_opportunities": [
+    {
+      "customer": "Orion Systems",
+      "invoice_number": "INV-10339",
+      "outstanding": 14640.79,
+      "days_overdue": 119,
+      "priority_score": 86.5,
+      "priority_band": "Critical",
+      "promise_status": "pending",
+      "dispute_type": null,
+      "recommended_action": "Immediate follow-up; no recent contact recorded.",
+      "why": [
+        "119 days overdue",
+        "amount score 100/100",
+        "age score 100/100",
+        "promise status: pending",
+        "21 days since last contact"
+      ]
+    },
+    {
+      "customer": "Juniper Works",
+      "invoice_number": "INV-10342",
+      "outstanding": 2884.83,
+      "days_overdue": 132,
+      "priority_score": 83.0,
+      "priority_band": "High",
+      "promise_status": "missed",
+      "dispute_type": null,
+      "recommended_action": "Follow up on missed payment commitment.",
+      "why": [
+        "132 days overdue",
+        "amount score 80/100",
+        "age score 100/100",
+        "promise status: missed",
+        "15 days since last contact"
+      ]
+    },
+    {
+      "customer": "Catalyst Services",
+      "invoice_number": "INV-10334",
+      "outstanding": 5257.11,
+      "days_overdue": 102,
+      "priority_score": 81.5,
+      "priority_band": "High",
+      "promise_status": null,
+      "dispute_type": "purchase_order",
+      "recommended_action": "Resolve purchase order before generic follow-up.",
+      "why": [
+        "102 days overdue",
+        "amount score 100/100",
+        "age score 100/100",
+        "blocker: purchase order",
+        "22 days since last contact"
+      ]
+    },
+    {
+      "customer": "Apex Services",
+      "invoice_number": "INV-10336",
+      "outstanding": 9463.67,
+      "days_overdue": 107,
+      "priority_score": 80.5,
+      "priority_band": "High",
+      "promise_status": null,
+      "dispute_type": "invoice_error",
+      "recommended_action": "Resolve invoice error before generic follow-up.",
+      "why": [
+        "107 days overdue",
+        "amount score 100/100",
+        "age score 100/100",
+        "blocker: invoice error",
+        "16 days since last contact"
+      ]
+    },
+    {
+      "customer": "Sterling Consulting",
+      "invoice_number": "INV-10337",
+      "outstanding": 12289.86,
+      "days_overdue": 119,
+      "priority_score": 76.5,
+      "priority_band": "High",
+      "promise_status": null,
+      "dispute_type": null,
+      "recommended_action": "Immediate follow-up; no recent contact recorded.",
+      "why": [
+        "119 days overdue",
+        "amount score 100/100",
+        "age score 100/100",
+        "16 days since last contact"
+      ]
+    },
+    {
+      "customer": "Delta Labs",
+      "invoice_number": "INV-10338",
+      "outstanding": 4115.41,
+      "days_overdue": 141,
+      "priority_score": 76.5,
+      "priority_band": "High",
+      "promise_status": "pending",
+      "dispute_type": "invoice_error",
+      "recommended_action": "Resolve invoice error before generic follow-up.",
+      "why": [
+        "141 days overdue",
+        "amount score 80/100",
+        "age score 100/100",
+        "promise status: pending",
+        "blocker: invoice error"
+      ]
+    },
+    {
+      "customer": "Horizon Solutions",
+      "invoice_number": "INV-10327",
+      "outstanding": 4279.52,
+      "days_overdue": 145,
+      "priority_score": 75.5,
+      "priority_band": "High",
+      "promise_status": "missed",
+      "dispute_type": null,
+      "recommended_action": "Follow up on missed payment commitment.",
+      "why": [
+        "145 days overdue",
+        "amount score 80/100",
+        "age score 100/100",
+        "promise status: missed"
+      ]
+    },
+    {
+      "customer": "Vertex Systems",
+      "invoice_number": "INV-10335",
+      "outstanding": 2200.76,
+      "days_overdue": 121,
+      "priority_score": 73.5,
+      "priority_band": "High",
+      "promise_status": "missed",
+      "dispute_type": null,
+      "recommended_action": "Follow up on missed payment commitment.",
+      "why": [
+        "121 days overdue",
+        "amount score 60/100",
+        "age score 100/100",
+        "promise status: missed"
+      ]
+    },
+    {
+      "customer": "Westlake Group",
+      "invoice_number": "INV-10325",
+      "outstanding": 16553.73,
+      "days_overdue": 89,
+      "priority_score": 72.5,
+      "priority_band": "High",
+      "promise_status": null,
+      "dispute_type": null,
+      "recommended_action": "High-priority collection follow-up.",
+      "why": [
+        "89 days overdue",
+        "amount score 100/100",
+        "age score 85/100"
+      ]
+    },
+    {
+      "customer": "Axis Solutions",
+      "invoice_number": "INV-10312",
+      "outstanding": 7036.46,
+      "days_overdue": 80,
+      "priority_score": 72.0,
+      "priority_band": "High",
+      "promise_status": null,
+      "dispute_type": null,
+      "recommended_action": "Immediate follow-up; no recent contact recorded.",
+      "why": [
+        "80 days overdue",
+        "amount score 100/100",
+        "age score 85/100",
+        "17 days since last contact"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "blocker": "approval_pending",
+      "amount": 15847.38,
+      "invoice_count": 5
+    },
+    {
+      "blocker": "invoice_error",
+      "amount": 14652.19,
+      "invoice_count": 4
+    },
+    {
+      "blocker": "pricing",
+      "amount": 13459.29,
+      "invoice_count": 2
+    },
+    {
+      "blocker": "purchase_order",
+      "amount": 9540.2,
+      "invoice_count": 2
+    }
+  ],
+  "ageing": {
+    "Current": {
+      "amount": 477820.21,
+      "invoice_count": 224
+    },
+    "1-30": {
+      "amount": 145352.4,
+      "invoice_count": 56
+    },
+    "31-60": {
+      "amount": 59822.19,
+      "invoice_count": 27
+    },
+    "61-90": {
+      "amount": 69237.33,
+      "invoice_count": 19
+    },
+    "90+": {
+      "amount": 71767.79,
+      "invoice_count": 16
+    }
+  },
+  "review_notes": [
+    "All calculations are deterministic and should reconcile to the imported ledger.",
+    "Multiple currencies are not FX-normalized in v0.1.",
+    "AI narrative should be generated only after this structured audit is reviewed."
+  ]
+}

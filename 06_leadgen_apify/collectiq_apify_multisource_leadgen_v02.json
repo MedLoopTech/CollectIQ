@@ -1,0 +1,275 @@
+{
+  "name": "CollectIQ - Apify Multi-Source Hiring Signals v0.2",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily Signal Scan",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const searches = [\n  {source:'linkedin', actor:$env.APIFY_LINKEDIN_ACTOR_ID, query:'accounts receivable', location:'United States'},\n  {source:'linkedin', actor:$env.APIFY_LINKEDIN_ACTOR_ID, query:'collections specialist', location:'United States'},\n  {source:'linkedin', actor:$env.APIFY_LINKEDIN_ACTOR_ID, query:'credit controller', location:'United Kingdom'},\n  {source:'indeed', actor:$env.APIFY_INDEED_ACTOR_ID, query:'accounts receivable', location:'United States'},\n  {source:'indeed', actor:$env.APIFY_INDEED_ACTOR_ID, query:'collections specialist', location:'United States'},\n  {source:'indeed', actor:$env.APIFY_INDEED_ACTOR_ID, query:'credit controller', location:'United Kingdom'}\n];\nreturn searches.map(x=>({json:x}));"
+      },
+      "id": "searches",
+      "name": "Build Source Searches",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const x=$json;\n// Actor input schemas vary. These generic keys are intentionally isolated here.\n// Edit ONLY this node after confirming the chosen Actor's input schema.\nconst input = x.source === 'linkedin'\n ? {keywords:x.query, location:x.location, maxItems:Number($env.APIFY_MAX_RESULTS_PER_SEARCH || 50)}\n : {query:x.query, location:x.location, maxItems:Number($env.APIFY_MAX_RESULTS_PER_SEARCH || 50)};\nreturn [{json:{...x, actor_input:input}}];"
+      },
+      "id": "input",
+      "name": "Build Actor Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{'https://api.apify.com/v2/acts/' + $json.actor + '/run-sync-get-dataset-items'}}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{$env.APIFY_TOKEN}}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{JSON.stringify($json.actor_input)}}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "actor",
+      "name": "Run Apify Actor + Get Dataset",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const sourceCfg=$('Build Actor Input').item.json;\nconst rows=Array.isArray($json) ? $json : ($json.items || $json.data || []);\n\nfunction first(o, keys){\n  for(const k of keys){\n    const parts=k.split('.');\n    let v=o;\n    for(const p of parts) v=v?.[p];\n    if(v!==undefined && v!==null && v!=='') return v;\n  }\n  return null;\n}\nfunction clean(s){ return String(s||'').trim(); }\n\nreturn rows.map(r=>{\n  const company=first(r,['companyName','company','company_name','employer.name','hiringOrganization.name']);\n  const title=first(r,['title','jobTitle','job_title','positionName','name']);\n  const loc=first(r,['location','jobLocation','job_location','formattedLocation']);\n  const desc=first(r,['description','jobDescription','job_description','descriptionText','text']);\n  const url=first(r,['url','jobUrl','job_url','link','applyUrl']);\n  const id=first(r,['id','jobId','job_id','jobPostingId']);\n  const posted=first(r,['postedAt','posted_at','datePosted','publishedAt','postedTime']);\n  const fingerprint=[clean(company).toLowerCase(),clean(title).toLowerCase(),clean(loc).toLowerCase()].join('|');\n  return {json:{\n    source:sourceCfg.source,\n    search_query:sourceCfg.query,\n    company_name:clean(company)||null,\n    job_title:clean(title)||null,\n    job_location:clean(loc)||null,\n    description:clean(desc),\n    source_url:url||null,\n    source_job_id:id||null,\n    posted_at:posted||null,\n    fingerprint,\n    raw:r\n  }};\n}).filter(x=>x.json.company_name && x.json.job_title);"
+      },
+      "id": "normalize",
+      "name": "Normalize Multi-Source Jobs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const text=`${$json.job_title||''} ${$json.description||''}`.toLowerCase();\nlet score=0; const signals=[];\nfunction hit(re,pts,label){if(re.test(text)){score+=pts;signals.push(label);}}\nhit(/accounts receivable|\\bar\\b/,25,'AR hiring');\nhit(/collections?|credit controller/,30,'collections/credit control');\nhit(/aging|ageing/,10,'ageing');\nhit(/promise to pay|payment promise|payment commitment|ptp/,15,'payment commitments');\nhit(/dispute|billing discrepancy|invoice discrepancy/,15,'disputes');\nhit(/excel|spreadsheet|google sheets/,10,'spreadsheet workflow');\nhit(/netsuite|quickbooks|xero|sage|dynamics|sap|oracle/,15,'ERP/accounting system');\nhit(/high volume|large volume|portfolio|hundreds of invoices/,15,'high volume');\nhit(/cash application/,8,'cash application');\nhit(/weekly report|reporting|aging report|ageing report/,10,'reporting');\nhit(/follow[- ]?up|chase invoices|contact customers|customer outreach/,10,'manual follow-up');\nscore=Math.min(score,100);\nreturn [{json:{...$json,prospect_score:score,signals,fit_reason:signals.join(', ')}}];"
+      },
+      "id": "score",
+      "name": "CollectIQ Signal Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "fit",
+              "leftValue": "={{$json.prospect_score}}",
+              "rightValue": 60,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fit",
+      "name": "Qualified Signal?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SUPABASE_URL + '/rest/v1/lead_prospects?on_conflict=fingerprint'}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{JSON.stringify({fingerprint:$json.fingerprint,company_name:$json.company_name,job_title:$json.job_title,job_location:$json.job_location,posted_at:String($json.posted_at||''),source:'Apify '+$json.source,source_job_id:String($json.source_job_id||''),source_url:$json.source_url,prospect_score:$json.prospect_score,signals:$json.signals,fit_reason:$json.fit_reason,status:'new',last_seen_at:new Date().toISOString()})}}",
+        "options": {}
+      },
+      "id": "save",
+      "name": "Upsert Qualified Signal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        -80
+      ]
+    }
+  ],
+  "connections": {
+    "Daily Signal Scan": {
+      "main": [
+        [
+          {
+            "node": "Build Source Searches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Source Searches": {
+      "main": [
+        [
+          {
+            "node": "Build Actor Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Actor Input": {
+      "main": [
+        [
+          {
+            "node": "Run Apify Actor + Get Dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Apify Actor + Get Dataset": {
+      "main": [
+        [
+          {
+            "node": "Normalize Multi-Source Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Multi-Source Jobs": {
+      "main": [
+        [
+          {
+            "node": "CollectIQ Signal Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CollectIQ Signal Score": {
+      "main": [
+        [
+          {
+            "node": "Qualified Signal?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qualified Signal?": {
+      "main": [
+        [
+          {
+            "node": "Upsert Qualified Signal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Karachi"
+  },
+  "versionId": "collectiq-apify-leadgen-v02"
+}

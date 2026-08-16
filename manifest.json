@@ -1,0 +1,17 @@
+{
+  "program": "CollectIQ",
+  "version": "0.3",
+  "modules": [
+    "01_landing_intake",
+    "02_audit_engine",
+    "03_report_renderer",
+    "04_reviewer_dashboard",
+    "05_n8n_e2e_audit",
+    "06_leadgen_apify"
+  ],
+  "core_positioning": "Accounts Receivable Intelligence + Managed Recovery",
+  "leadgen": "Apify multi-source hiring signals",
+  "database": "Supabase",
+  "automation": "n8n",
+  "audit_engine": "Python/FastAPI"
+}
