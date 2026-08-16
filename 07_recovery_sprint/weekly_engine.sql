@@ -35,12 +35,10 @@ begin
   if not found then raise exception 'Sprint % not found', p_sprint_id; end if;
   if v_sprint.status not in ('active','paused','completed') then raise exception 'Sprint is not active: %', v_sprint.status; end if;
 
-  -- Time-based promise aging. A pending commitment becomes missed the day after its promise date.
   update public.sprint_promises
   set status='missed', updated_at=now()
   where sprint_id=p_sprint_id and status='pending' and promise_date < p_as_of;
 
-  -- Keep invoice days-overdue current. Paid/held items remain excluded from active collection.
   update public.sprint_invoices
   set days_overdue = greatest(0, p_as_of - due_date),
       age_bucket = case
@@ -53,7 +51,6 @@ begin
       updated_at = now()
   where sprint_id=p_sprint_id and collection_status not in ('paid','written_off');
 
-  -- Refresh account balances and account-level status from invoice ledger + open workflow state.
   update public.sprint_accounts a
   set total_outstanding = x.total_outstanding,
       overdue_amount = x.overdue_amount,
@@ -75,8 +72,8 @@ begin
   ) x
   where a.id=x.account_id;
 
-  -- Current Sprint week is derived from start date and capped at 4.
-  v_week := least(4, greatest(0, floor((p_as_of - coalesce(v_sprint.start_date,p_as_of))/7.0)::integer + case when p_as_of>coalesce(v_sprint.start_date,p_as_of) then 1 else 0 end));
+  -- Day 0-6 stays Week 0; Week 1 starts on Day 7.
+  v_week := least(4, greatest(0, floor((p_as_of - coalesce(v_sprint.start_date,p_as_of))/7.0)::integer));
   update public.recovery_sprints set current_week=v_week, updated_at=now() where id=p_sprint_id;
 
   select coalesce(sum(outstanding_amount),0),
