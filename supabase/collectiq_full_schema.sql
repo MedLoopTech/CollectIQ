@@ -131,16 +131,6 @@ using (true)
 with check (true);
 
 
--- ===== supabase_v02_additions.sql =====
-alter table public.lead_prospects
-  add column if not exists source_platform text,
-  add column if not exists search_query text,
-  add column if not exists raw_signal jsonb;
-
-create index if not exists idx_lead_prospects_source_platform
-on public.lead_prospects(source_platform);
-
-
 -- ===== supabase_leadgen_schema.sql =====
 -- CollectIQ lead-gen schema
 create extension if not exists pgcrypto;
@@ -189,6 +179,15 @@ create table if not exists public.lead_prospects (
 create index if not exists idx_lead_prospects_score on public.lead_prospects(prospect_score desc);
 create index if not exists idx_lead_prospects_status on public.lead_prospects(status);
 create index if not exists idx_lead_prospects_company on public.lead_prospects(company_name);
+
+-- ===== supabase_v02_additions.sql =====
+alter table public.lead_prospects
+  add column if not exists source_platform text,
+  add column if not exists search_query text,
+  add column if not exists raw_signal jsonb;
+
+create index if not exists idx_lead_prospects_source_platform
+on public.lead_prospects(source_platform);
 
 create or replace function public.touch_updated_at()
 returns trigger language plpgsql as $$
