@@ -4,33 +4,96 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CollectIQ Reviewer Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232563eb'/%3E%3Ctext x='32' y='44' font-size='34' font-family='Arial' font-weight='800' fill='white' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#f6f8fb;--surface:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--navy:#17324d;--blue:#2563eb;--green:#047857;--red:#b42318;--amber:#b7791f}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
-.app{display:grid;grid-template-columns:290px 1fr;min-height:100vh}.side{background:var(--navy);color:#fff;padding:24px}.brand{font-size:20px;font-weight:800;margin-bottom:24px}.side small{opacity:.7}
-.queue{display:grid;gap:10px;margin-top:20px}.lead{padding:14px;border-radius:12px;background:rgba(255,255,255,.08);cursor:pointer}.lead.active{background:#fff;color:var(--ink)}.lead strong{display:block}.lead span{font-size:12px;opacity:.75}
-.main{padding:28px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}.top h1{margin:0;font-size:30px}.pill{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800;background:#e2e8f0}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px}.metric{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}.metric strong{display:block;font-size:24px}.metric span{font-size:12px;color:var(--muted)}
-.columns{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:18px}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}
-h2{font-size:18px;margin:0 0 12px}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{font-size:11px;color:var(--muted)}
-.warn{padding:10px 12px;border-radius:10px;margin:8px 0;background:#fff7ed;color:#9a3412;font-size:13px}.ok{padding:10px 12px;border-radius:10px;margin:8px 0;background:#ecfdf5;color:#065f46;font-size:13px}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.btn{border:0;border-radius:11px;padding:12px 16px;font-weight:800;cursor:pointer}.btn.primary{background:var(--navy);color:#fff}.btn.green{background:var(--green);color:#fff}.btn.secondary{background:#fff;border:1px solid var(--line)}.btn.danger{background:#fff1f2;color:#9f1239;border:1px solid #fecdd3}
-textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:10px;padding:12px}
-.empty{display:grid;place-items:center;min-height:70vh;color:var(--muted)}
-@media(max-width:900px){.app{grid-template-columns:1fr}.side{min-height:auto}.grid{grid-template-columns:1fr 1fr}.columns{grid-template-columns:1fr}}
-.login-wrap{min-height:100vh;display:grid;place-items:center;background:var(--bg)}
-.login-panel{width:min(360px,calc(100% - 32px));background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px}
-.login-panel h1{font-size:20px;margin:0 0 4px}.login-panel p{color:var(--muted);font-size:13px;margin:0 0 20px}
+:root{
+  --bg:#f5f7fb;--surface:#fff;--ink:#0b1424;--muted:#5b6b81;--line:#e6ebf2;
+  --navy:#0f2744;--navy2:#1c3f66;--blue:#2563eb;--teal:#0ea5a3;--soft:#eaf1fb;
+  --green:#0f766e;--red:#b42318;--amber:#b45309;
+  --shadow-sm:0 2px 8px rgba(15,23,42,.05);--shadow-md:0 12px 32px rgba(15,23,42,.08);--shadow-lg:0 24px 60px rgba(15,39,68,.14);
+  --radius:18px;--radius-sm:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Inter",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+
+.brand-mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--teal));display:grid;place-items:center;color:#fff;font-weight:800;font-size:14px;box-shadow:0 6px 16px rgba(37,99,235,.35);flex:none}
+
+.app{display:grid;grid-template-columns:290px 1fr;min-height:100vh}
+.side{background:linear-gradient(180deg,var(--navy),#0a1c30);color:#fff;padding:24px;display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;margin-bottom:4px}
+.side small{opacity:.55;font-size:12px;padding-left:40px}
+.queue{display:grid;gap:8px;margin-top:22px;overflow-y:auto}
+.lead{padding:14px;border-radius:var(--radius-sm);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:background .15s ease,transform .15s ease}
+.lead:hover{background:rgba(255,255,255,.12);transform:translateX(2px)}
+.lead.active{background:#fff;color:var(--ink);box-shadow:var(--shadow-md)}
+.lead strong{display:block;font-size:14px}
+.lead span{font-size:11.5px;opacity:.7}
+.lead.active span{opacity:.55}
+
+.main{padding:32px 36px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.top h1{margin:0;font-size:28px;letter-spacing:-.02em}
+.pill{padding:7px 12px;border-radius:999px;font-size:11.5px;font-weight:800;letter-spacing:.03em;background:var(--soft);color:var(--blue);text-transform:uppercase}
+.pill.status-needs_review{background:#fff7ed;color:var(--amber)}
+.pill.status-audit_ready{background:#eaf1fb;color:var(--blue)}
+.pill.status-sent{background:#ecfdf5;color:var(--green)}
+
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:24px}
+.metric{background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px;box-shadow:var(--shadow-sm);transition:transform .15s ease}
+.metric:hover{transform:translateY(-2px)}
+.metric strong{display:block;font-size:23px;letter-spacing:-.02em}
+.metric span{font-size:12px;color:var(--muted)}
+
+.columns{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:18px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sm)}
+h2{font-size:16px;margin:0 0 14px;letter-spacing:-.01em}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:11px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+tr:last-child td{border-bottom:none}
+
+.warn{padding:11px 13px;border-radius:var(--radius-sm);margin:8px 0;background:#fff7ed;color:#9a3412;font-size:13px}
+.ok{padding:11px 13px;border-radius:var(--radius-sm);margin:8px 0;background:#ecfdf5;color:#065f46;font-size:13px}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{border:0;border-radius:11px;padding:12px 18px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px;transition:transform .15s ease,box-shadow .15s ease,opacity .15s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.primary{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;box-shadow:0 8px 20px rgba(15,39,68,.28)}
+.btn.green{background:linear-gradient(135deg,var(--green),#0d9488);color:#fff;box-shadow:0 8px 20px rgba(15,118,110,.28)}
+.btn.secondary{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.btn.secondary:hover{border-color:#c7d2e0}
+.btn.danger{background:#fff1f2;color:#9f1239;border:1px solid #fecdd3}
+
+textarea{width:100%;min-height:90px;border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:12px;font-family:inherit;font-size:14px;resize:vertical;transition:border-color .15s ease,box-shadow .15s ease}
+textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+
+.empty{display:grid;place-items:center;min-height:70vh;color:var(--muted);font-size:15px}
+@media(max-width:900px){.app{grid-template-columns:1fr}.side{min-height:auto}.grid{grid-template-columns:1fr 1fr}.columns{grid-template-columns:1fr}.main{padding:24px 20px}}
+
+.login-wrap{min-height:100vh;display:grid;place-items:center;background:
+  radial-gradient(600px 320px at 12% 8%, rgba(37,99,235,.10), transparent 60%),
+  radial-gradient(560px 320px at 88% 4%, rgba(14,165,163,.10), transparent 60%),
+  var(--bg)}
+.login-panel{width:min(380px,calc(100% - 32px));background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow-lg)}
+.login-panel .brand{margin-bottom:18px;color:var(--ink)}
+.login-panel h1{font-size:20px;margin:0 0 4px}
+.login-panel p{color:var(--muted);font-size:13.5px;margin:0 0 22px}
 .login-panel label{display:block;font-size:13px;font-weight:800;margin-bottom:6px}
-.login-panel input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;margin-bottom:14px}
+.login-panel input{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;margin-bottom:16px;font-family:inherit;transition:border-color .15s ease,box-shadow .15s ease}
+.login-panel input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
 .login-panel .btn{width:100%}
 </style>
 </head>
 <body>
 <div id="loginScreen" class="login-wrap" style="display:none">
   <form class="login-panel" id="loginForm">
-    <h1>CollectIQ Review</h1>
+    <div class="brand"><span class="brand-mark">C</span><span>CollectIQ Review</span></div>
+    <h1>Reviewer sign in</h1>
     <p>Sign in with your reviewer account.</p>
     <label for="loginEmail">Email</label>
     <input id="loginEmail" type="email" required autocomplete="username" />
@@ -42,9 +105,9 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
 </div>
 <div class="app" id="app" style="display:none">
   <aside class="side">
-    <div class="brand">CollectIQ Review</div>
+    <div class="brand"><span class="brand-mark">C</span><span>CollectIQ Review</span></div>
     <small>Human approval queue</small>
-    <button class="btn secondary" id="logoutBtn" style="width:100%;margin-top:14px">Sign out</button>
+    <button class="btn secondary" id="logoutBtn" style="width:100%;margin-top:16px">Sign out</button>
     <div class="queue" id="queue"></div>
   </aside>
 
@@ -54,7 +117,7 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
       <div class="top">
         <div>
           <h1 id="companyTitle">Company</h1>
-          <div id="contactLine" style="color:var(--muted);margin-top:4px"></div>
+          <div id="contactLine" style="color:var(--muted);margin-top:4px;font-size:14px"></div>
         </div>
         <span class="pill" id="statusPill">needs_review</span>
       </div>
@@ -76,7 +139,7 @@ textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:1
         </section>
 
         <section class="panel">
-          <h2>Validation & review</h2>
+          <h2>Validation &amp; review</h2>
           <div id="validation"></div>
           <label style="display:block;font-weight:800;font-size:13px;margin:14px 0 6px">Reviewer notes</label>
           <textarea id="reviewNotes" placeholder="Add internal notes before approval."></textarea>
@@ -199,7 +262,9 @@ function renderSelected(){
   document.getElementById("content").style.display="block";
   document.getElementById("companyTitle").textContent=selected.company_name;
   document.getElementById("contactLine").textContent=`${selected.contact_name} · ${selected.work_email}`;
-  document.getElementById("statusPill").textContent=selected.status;
+  const pill = document.getElementById("statusPill");
+  pill.textContent=selected.status;
+  pill.className = "pill status-" + selected.status;
 
   const audit = selected.audit_summary || {};
   const m = audit.metrics || {};
