@@ -1,0 +1,86 @@
+{
+  "name": "CollectIQ - Audit Agent v0.1",
+  "nodes": [
+    {
+      "parameters": {"httpMethod":"POST","path":"collectiq-audit-agent","responseMode":"responseNode","options":{}},
+      "id":"webhook","name":"Audit Agent Webhook","type":"n8n-nodes-base.webhook","typeVersion":2,"position":[0,0]
+    },
+    {
+      "parameters": {
+        "method":"GET",
+        "url":"={{$env.SUPABASE_URL + '/rest/v1/audit_leads?id=eq.' + $json.body.lead_id + '&select=*'}}",
+        "sendHeaders":true,
+        "headerParameters":{"parameters":[
+          {"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},
+          {"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"}
+        ]},"options":{}
+      },
+      "id":"load","name":"Load Audit Lead","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[220,0]
+    },
+    {
+      "parameters":{"jsCode":"const rows=$input.first().json; const lead=Array.isArray(rows)?rows[0]:rows; if(!lead?.id) throw new Error('Audit lead not found'); if(!lead.audit_summary) throw new Error('No audit_summary'); return [{json:lead}];"},
+      "id":"normalize","name":"Validate Audit Input","type":"n8n-nodes-base.code","typeVersion":2,"position":[440,0]
+    },
+    {
+      "parameters": {
+        "method":"POST",
+        "url":"={{$env.SUPABASE_URL + '/rest/v1/agent_jobs'}}",
+        "sendHeaders":true,
+        "headerParameters":{"parameters":[
+          {"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},
+          {"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"},
+          {"name":"Content-Type","value":"application/json"},
+          {"name":"Prefer","value":"return=representation"}
+        ]},
+        "sendBody":true,"contentType":"raw","rawContentType":"application/json",
+        "body":"={{JSON.stringify({agent_name:'audit',job_type:'interpret_audit',entity_type:'audit_lead',entity_id:$json.id,status:'running',autonomy_tier:'green',priority:80,input_payload:{lead_id:$json.id}})}}",
+        "options":{}
+      },
+      "id":"job","name":"Create Audit Agent Job","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[660,0]
+    },
+    {
+      "parameters":{"jsCode":"const r=$input.first().json; const job=Array.isArray(r)?r[0]:r; return [{json:{job_id:job.id,audit:$('Validate Audit Input').first().json.audit_summary}}];"},
+      "id":"jobid","name":"Attach Job ID","type":"n8n-nodes-base.code","typeVersion":2,"position":[880,0]
+    },
+    {
+      "parameters": {
+        "method":"POST","url":"={{$env.COLLECTIQ_AGENT_SERVICE_URL + '/audit/interpret'}}",
+        "sendHeaders":true,"headerParameters":{"parameters":[{"name":"Content-Type","value":"application/json"}]},
+        "sendBody":true,"contentType":"raw","rawContentType":"application/json",
+        "body":"={{JSON.stringify({data:$json.audit})}}","options":{}
+      },
+      "id":"interpret","name":"Run Audit Agent","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1100,0]
+    },
+    {
+      "parameters":{"jsCode":"const lead=$('Validate Audit Input').first().json; const job=$('Attach Job ID').first().json.job_id; const out=$json; const approvals=(out.priority_accounts||[]).filter(x=>x.requires_approval&&x.draft_follow_up).map(x=>({job_id:job,agent_name:'audit',action_type:'customer_collection_message',entity_type:'audit_lead',entity_id:lead.id,risk_tier:'amber',title:`Approve follow-up draft: ${x.customer||'account'}`,summary:x.recommended_action||'',proposed_action:{customer:x.customer,invoice_number:x.invoice_number,draft_follow_up:x.draft_follow_up},evidence:[{outstanding:x.outstanding,priority_score:x.priority_score}],status:'pending'})); const exceptions=(out.exceptions||[]).map(x=>({job_id:job,agent_name:'audit',entity_type:'audit_lead',entity_id:lead.id,severity:x.severity||'high',category:x.category||'uncertainty',title:x.title||'Audit Agent exception',details:{reason:x.reason||''},status:'open'})); return [{json:{lead_id:lead.id,job_id:job,out,approvals,exceptions}}];"},
+      "id":"route","name":"Build Approval + Exception Rows","type":"n8n-nodes-base.code","typeVersion":2,"position":[1320,0]
+    },
+    {
+      "parameters": {
+        "method":"PATCH","url":"={{$env.SUPABASE_URL + '/rest/v1/agent_jobs?id=eq.' + $json.job_id}}",
+        "sendHeaders":true,"headerParameters":{"parameters":[
+          {"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Content-Type","value":"application/json"},{"name":"Prefer","value":"return=minimal"}
+        ]},"sendBody":true,"contentType":"raw","rawContentType":"application/json",
+        "body":"={{JSON.stringify({status:($json.approvals.length||$json.exceptions.length)?'waiting_approval':'completed',output_payload:$json.out,completed_at:new Date().toISOString()})}}","options":{}
+      },
+      "id":"savejob","name":"Save Agent Output","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1540,0]
+    },
+    {
+      "parameters":{"respondWith":"json","responseBody":"={{JSON.stringify({ok:true,lead_id:$('Build Approval + Exception Rows').first().json.lead_id,job_id:$('Build Approval + Exception Rows').first().json.job_id,approvals:$('Build Approval + Exception Rows').first().json.approvals.length,exceptions:$('Build Approval + Exception Rows').first().json.exceptions.length})}}","options":{}},
+      "id":"respond","name":"Respond","type":"n8n-nodes-base.respondToWebhook","typeVersion":1.4,"position":[1760,0]
+    }
+  ],
+  "connections": {
+    "Audit Agent Webhook":{"main":[[{"node":"Load Audit Lead","type":"main","index":0}]]},
+    "Load Audit Lead":{"main":[[{"node":"Validate Audit Input","type":"main","index":0}]]},
+    "Validate Audit Input":{"main":[[{"node":"Create Audit Agent Job","type":"main","index":0}]]},
+    "Create Audit Agent Job":{"main":[[{"node":"Attach Job ID","type":"main","index":0}]]},
+    "Attach Job ID":{"main":[[{"node":"Run Audit Agent","type":"main","index":0}]]},
+    "Run Audit Agent":{"main":[[{"node":"Build Approval + Exception Rows","type":"main","index":0}]]},
+    "Build Approval + Exception Rows":{"main":[[{"node":"Save Agent Output","type":"main","index":0}]]},
+    "Save Agent Output":{"main":[[{"node":"Respond","type":"main","index":0}]]}
+  },
+  "active": false,
+  "settings":{"executionOrder":"v1","timezone":"Asia/Karachi"},
+  "versionId":"collectiq-audit-agent-v01"
+}
