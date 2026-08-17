@@ -33,7 +33,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r requirements.txt
-      - run: python -m py_compile api.py llm_provider.py audit_agent.py manager_agent.py research_agent.py outreach_agent.py sales_agent.py recovery_agent.py cfo_agent.py
+      - run: python -m py_compile api.py llm_provider.py audit_agent.py manager_agent.py prospect_agents.py sales_agent.py recovery_agent.py cfo_agent.py
       - run: |
           python - <<'PY'
           from fastapi.testclient import TestClient
