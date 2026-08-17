@@ -1,0 +1,82 @@
+{
+  "name": "CollectIQ - Audit Agent v0.1",
+  "nodes": [
+    {
+      "parameters": {"httpMethod":"POST","path":"collectiq-audit-agent","responseMode":"responseNode","options":{}},
+      "id":"webhook","name":"Audit Agent Webhook","type":"n8n-nodes-base.webhook","typeVersion":2,"position":[0,0]
+    },
+    {
+      "parameters": {
+        "method":"GET",
+        "url":"={{$env.SUPABASE_URL + '/rest/v1/audit_leads?id=eq.' + $json.body.lead_id + '&select=*'}}",
+        "sendHeaders":true,
+        "headerParameters":{"parameters":[
+          {"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},
+          {"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"}
+        ]},"options":{}
+      },
+      "id":"load","name":"Load Audit Lead","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[220,0]
+    },
+    {
+      "parameters":{"jsCode":"const rows=$input.first().json; const lead=Array.isArray(rows)?rows[0]:rows; if(!lead?.id) throw new Error('Audit lead not found'); if(!lead.audit_summary) throw new Error('No audit_summary'); return [{json:lead}];"},
+      "id":"normalize","name":"Validate Audit Input","type":"n8n-nodes-base.code","typeVersion":2,"position":[440,0]
+    },
+    {
+      "parameters": {
+        "method":"POST","url":"={{$env.SUPABASE_URL + '/rest/v1/agent_jobs'}}",
+        "sendHeaders":true,
+        "headerParameters":{"parameters":[
+          {"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Content-Type","value":"application/json"},{"name":"Prefer","value":"return=representation"}
+        ]},
+        "sendBody":true,"contentType":"raw","rawContentType":"application/json",
+        "body":"={{JSON.stringify({agent_name:'audit',job_type:'interpret_audit',entity_type:'audit_lead',entity_id:$json.id,status:'running',autonomy_tier:'green',priority:80,input_payload:{lead_id:$json.id},started_at:new Date().toISOString()})}}","options":{}
+      },
+      "id":"job","name":"Create Audit Agent Job","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[660,0]
+    },
+    {
+      "parameters":{"jsCode":"const r=$input.first().json; const job=Array.isArray(r)?r[0]:r; return [{json:{job_id:job.id,lead_id:$('Validate Audit Input').first().json.id,audit:$('Validate Audit Input').first().json.audit_summary}}];"},
+      "id":"jobid","name":"Attach Job ID","type":"n8n-nodes-base.code","typeVersion":2,"position":[880,0]
+    },
+    {
+      "parameters": {
+        "method":"POST","url":"={{$env.COLLECTIQ_AGENT_SERVICE_URL + '/audit/interpret'}}",
+        "sendHeaders":true,"headerParameters":{"parameters":[{"name":"Content-Type","value":"application/json"}]},
+        "sendBody":true,"contentType":"raw","rawContentType":"application/json","body":"={{JSON.stringify({data:$json.audit})}}","options":{}
+      },
+      "id":"interpret","name":"Run Audit Agent","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1100,0]
+    },
+    {
+      "parameters":{"jsCode":"return [{json:{job_id:$('Attach Job ID').first().json.job_id,lead_id:$('Attach Job ID').first().json.lead_id,output:$json}}];"},
+      "id":"persistPayload","name":"Build Persist Payload","type":"n8n-nodes-base.code","typeVersion":2,"position":[1320,0]
+    },
+    {
+      "parameters": {
+        "method":"POST","url":"={{$env.SUPABASE_URL + '/rest/v1/rpc/persist_audit_agent_result'}}",
+        "sendHeaders":true,
+        "headerParameters":{"parameters":[
+          {"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Content-Type","value":"application/json"}
+        ]},
+        "sendBody":true,"contentType":"raw","rawContentType":"application/json",
+        "body":"={{JSON.stringify({p_job_id:$json.job_id,p_audit_lead_id:$json.lead_id,p_output:$json.output})}}","options":{}
+      },
+      "id":"persist","name":"Persist Agent Result","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1540,0]
+    },
+    {
+      "parameters":{"respondWith":"json","responseBody":"={{JSON.stringify({ok:true,result:$json})}}","options":{}},
+      "id":"respond","name":"Respond","type":"n8n-nodes-base.respondToWebhook","typeVersion":1.4,"position":[1760,0]
+    }
+  ],
+  "connections": {
+    "Audit Agent Webhook":{"main":[[{"node":"Load Audit Lead","type":"main","index":0}]]},
+    "Load Audit Lead":{"main":[[{"node":"Validate Audit Input","type":"main","index":0}]]},
+    "Validate Audit Input":{"main":[[{"node":"Create Audit Agent Job","type":"main","index":0}]]},
+    "Create Audit Agent Job":{"main":[[{"node":"Attach Job ID","type":"main","index":0}]]},
+    "Attach Job ID":{"main":[[{"node":"Run Audit Agent","type":"main","index":0}]]},
+    "Run Audit Agent":{"main":[[{"node":"Build Persist Payload","type":"main","index":0}]]},
+    "Build Persist Payload":{"main":[[{"node":"Persist Agent Result","type":"main","index":0}]]},
+    "Persist Agent Result":{"main":[[{"node":"Respond","type":"main","index":0}]]}
+  },
+  "active": false,
+  "settings":{"executionOrder":"v1","timezone":"Asia/Karachi"},
+  "versionId":"collectiq-audit-agent-v01"
+}

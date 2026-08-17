@@ -10,6 +10,27 @@ services:
       - default
       - root_default
 
+  collectiq-agent-service:
+    build:
+      context: ./08_agent_foundation
+    container_name: collectiq-agent-service
+    restart: unless-stopped
+    environment:
+      COLLECTIQ_LLM_PROVIDER: ${COLLECTIQ_LLM_PROVIDER:-deepseek}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-v4-pro}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+    ports:
+      - "127.0.0.1:8100:8100"
+    networks:
+      - default
+      - root_default
+    depends_on:
+      - collectiq-audit-engine
+
 networks:
   root_default:
     external: true

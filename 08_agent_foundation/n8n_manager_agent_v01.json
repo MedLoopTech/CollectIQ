@@ -1,0 +1,59 @@
+{
+  "name":"CollectIQ - Manager Agent Daily Brief v0.1",
+  "nodes":[
+    {
+      "parameters":{"rule":{"interval":[{"field":"days","daysInterval":1,"triggerAtHour":9}]}},
+      "id":"schedule","name":"Daily Manager Brief","type":"n8n-nodes-base.scheduleTrigger","typeVersion":1.2,"position":[0,0]
+    },
+    {
+      "parameters":{"method":"GET","url":"={{$env.SUPABASE_URL + '/rest/v1/manager_agent_operating_summary?select=*'}}","sendHeaders":true,"headerParameters":{"parameters":[{"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"}]},"options":{}},
+      "id":"summary","name":"Load Operating Summary","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[220,0]
+    },
+    {
+      "parameters":{"method":"GET","url":"={{$env.SUPABASE_URL + '/rest/v1/approval_queue?status=eq.pending&select=*&order=requested_at.asc&limit=20'}}","sendHeaders":true,"headerParameters":{"parameters":[{"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"}]},"options":{}},
+      "id":"approvals","name":"Load Pending Approvals","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[440,0]
+    },
+    {
+      "parameters":{"method":"GET","url":"={{$env.SUPABASE_URL + '/rest/v1/agent_exceptions?status=in.(open,acknowledged)&select=*&order=created_at.asc&limit=20'}}","sendHeaders":true,"headerParameters":{"parameters":[{"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"}]},"options":{}},
+      "id":"exceptions","name":"Load Exceptions","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[660,0]
+    },
+    {
+      "parameters":{"method":"GET","url":"={{$env.SUPABASE_URL + '/rest/v1/lead_prospects?prospect_score=gte.80&status=in.(new,reviewed,approved,replied)&select=id,company_name,prospect_score,status,fit_reason,contact_email&order=prospect_score.desc&limit=10'}}","sendHeaders":true,"headerParameters":{"parameters":[{"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"}]},"options":{}},
+      "id":"prospects","name":"Load Hot Prospects","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[880,0]
+    },
+    {
+      "parameters":{"method":"GET","url":"={{$env.SUPABASE_URL + '/rest/v1/recovery_sprints?status=eq.active&select=id,company_name,current_week,baseline_overdue_ar,baseline_priority_pool&order=created_at.asc&limit=20'}}","sendHeaders":true,"headerParameters":{"parameters":[{"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"}]},"options":{}},
+      "id":"sprints","name":"Load Active Sprints","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1100,0]
+    },
+    {
+      "parameters":{"jsCode":"const first=x=>Array.isArray(x)?(x[0]||{}):x; return [{json:{operating_summary:first($('Load Operating Summary').first().json),pending_approvals:$('Load Pending Approvals').all().map(x=>x.json).flat(),exceptions:$('Load Exceptions').all().map(x=>x.json).flat(),hot_prospects:$('Load Hot Prospects').all().map(x=>x.json).flat(),active_sprint_attention:$('Load Active Sprints').all().map(x=>x.json).flat()}}];"},
+      "id":"payload","name":"Build Manager Input","type":"n8n-nodes-base.code","typeVersion":2,"position":[1320,0]
+    },
+    {
+      "parameters":{"method":"POST","url":"={{$env.SUPABASE_URL + '/rest/v1/agent_jobs'}}","sendHeaders":true,"headerParameters":{"parameters":[{"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Content-Type","value":"application/json"},{"name":"Prefer","value":"return=representation"}]},"sendBody":true,"contentType":"raw","rawContentType":"application/json","body":"={{JSON.stringify({agent_name:'manager',job_type:'daily_founder_brief',entity_type:'business',entity_id:'collectiq',status:'running',autonomy_tier:'green',priority:90,input_payload:$json,started_at:new Date().toISOString()})}}","options":{}},
+      "id":"job","name":"Create Manager Job","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1540,0]
+    },
+    {
+      "parameters":{"method":"POST","url":"={{$env.COLLECTIQ_AGENT_SERVICE_URL + '/manager/brief'}}","sendHeaders":true,"headerParameters":{"parameters":[{"name":"Content-Type","value":"application/json"}]},"sendBody":true,"contentType":"raw","rawContentType":"application/json","body":"={{JSON.stringify({data:$('Build Manager Input').first().json})}}","options":{}},
+      "id":"manager","name":"Run Manager Agent","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1760,0]
+    },
+    {
+      "parameters":{"method":"PATCH","url":"={{$env.SUPABASE_URL + '/rest/v1/agent_jobs?id=eq.' + (Array.isArray($('Create Manager Job').first().json)?$('Create Manager Job').first().json[0].id:$('Create Manager Job').first().json.id)}}","sendHeaders":true,"headerParameters":{"parameters":[{"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Content-Type","value":"application/json"},{"name":"Prefer","value":"return=minimal"}]},"sendBody":true,"contentType":"raw","rawContentType":"application/json","body":"={{JSON.stringify({status:'completed',output_payload:$json,completed_at:new Date().toISOString()})}}","options":{}},
+      "id":"save","name":"Save Manager Brief","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1980,0]
+    }
+  ],
+  "connections":{
+    "Daily Manager Brief":{"main":[[{"node":"Load Operating Summary","type":"main","index":0}]]},
+    "Load Operating Summary":{"main":[[{"node":"Load Pending Approvals","type":"main","index":0}]]},
+    "Load Pending Approvals":{"main":[[{"node":"Load Exceptions","type":"main","index":0}]]},
+    "Load Exceptions":{"main":[[{"node":"Load Hot Prospects","type":"main","index":0}]]},
+    "Load Hot Prospects":{"main":[[{"node":"Load Active Sprints","type":"main","index":0}]]},
+    "Load Active Sprints":{"main":[[{"node":"Build Manager Input","type":"main","index":0}]]},
+    "Build Manager Input":{"main":[[{"node":"Create Manager Job","type":"main","index":0}]]},
+    "Create Manager Job":{"main":[[{"node":"Run Manager Agent","type":"main","index":0}]]},
+    "Run Manager Agent":{"main":[[{"node":"Save Manager Brief","type":"main","index":0}]]}
+  },
+  "active":false,
+  "settings":{"executionOrder":"v1","timezone":"Asia/Karachi"},
+  "versionId":"collectiq-manager-agent-v01"
+}
