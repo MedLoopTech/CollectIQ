@@ -23,50 +23,46 @@
     },
     {
       "parameters": {
-        "method":"POST",
-        "url":"={{$env.SUPABASE_URL + '/rest/v1/agent_jobs'}}",
+        "method":"POST","url":"={{$env.SUPABASE_URL + '/rest/v1/agent_jobs'}}",
         "sendHeaders":true,
         "headerParameters":{"parameters":[
-          {"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},
-          {"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"},
-          {"name":"Content-Type","value":"application/json"},
-          {"name":"Prefer","value":"return=representation"}
+          {"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Content-Type","value":"application/json"},{"name":"Prefer","value":"return=representation"}
         ]},
         "sendBody":true,"contentType":"raw","rawContentType":"application/json",
-        "body":"={{JSON.stringify({agent_name:'audit',job_type:'interpret_audit',entity_type:'audit_lead',entity_id:$json.id,status:'running',autonomy_tier:'green',priority:80,input_payload:{lead_id:$json.id}})}}",
-        "options":{}
+        "body":"={{JSON.stringify({agent_name:'audit',job_type:'interpret_audit',entity_type:'audit_lead',entity_id:$json.id,status:'running',autonomy_tier:'green',priority:80,input_payload:{lead_id:$json.id},started_at:new Date().toISOString()})}}","options":{}
       },
       "id":"job","name":"Create Audit Agent Job","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[660,0]
     },
     {
-      "parameters":{"jsCode":"const r=$input.first().json; const job=Array.isArray(r)?r[0]:r; return [{json:{job_id:job.id,audit:$('Validate Audit Input').first().json.audit_summary}}];"},
+      "parameters":{"jsCode":"const r=$input.first().json; const job=Array.isArray(r)?r[0]:r; return [{json:{job_id:job.id,lead_id:$('Validate Audit Input').first().json.id,audit:$('Validate Audit Input').first().json.audit_summary}}];"},
       "id":"jobid","name":"Attach Job ID","type":"n8n-nodes-base.code","typeVersion":2,"position":[880,0]
     },
     {
       "parameters": {
         "method":"POST","url":"={{$env.COLLECTIQ_AGENT_SERVICE_URL + '/audit/interpret'}}",
         "sendHeaders":true,"headerParameters":{"parameters":[{"name":"Content-Type","value":"application/json"}]},
-        "sendBody":true,"contentType":"raw","rawContentType":"application/json",
-        "body":"={{JSON.stringify({data:$json.audit})}}","options":{}
+        "sendBody":true,"contentType":"raw","rawContentType":"application/json","body":"={{JSON.stringify({data:$json.audit})}}","options":{}
       },
       "id":"interpret","name":"Run Audit Agent","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1100,0]
     },
     {
-      "parameters":{"jsCode":"const lead=$('Validate Audit Input').first().json; const job=$('Attach Job ID').first().json.job_id; const out=$json; const approvals=(out.priority_accounts||[]).filter(x=>x.requires_approval&&x.draft_follow_up).map(x=>({job_id:job,agent_name:'audit',action_type:'customer_collection_message',entity_type:'audit_lead',entity_id:lead.id,risk_tier:'amber',title:`Approve follow-up draft: ${x.customer||'account'}`,summary:x.recommended_action||'',proposed_action:{customer:x.customer,invoice_number:x.invoice_number,draft_follow_up:x.draft_follow_up},evidence:[{outstanding:x.outstanding,priority_score:x.priority_score}],status:'pending'})); const exceptions=(out.exceptions||[]).map(x=>({job_id:job,agent_name:'audit',entity_type:'audit_lead',entity_id:lead.id,severity:x.severity||'high',category:x.category||'uncertainty',title:x.title||'Audit Agent exception',details:{reason:x.reason||''},status:'open'})); return [{json:{lead_id:lead.id,job_id:job,out,approvals,exceptions}}];"},
-      "id":"route","name":"Build Approval + Exception Rows","type":"n8n-nodes-base.code","typeVersion":2,"position":[1320,0]
+      "parameters":{"jsCode":"return [{json:{job_id:$('Attach Job ID').first().json.job_id,lead_id:$('Attach Job ID').first().json.lead_id,output:$json}}];"},
+      "id":"persistPayload","name":"Build Persist Payload","type":"n8n-nodes-base.code","typeVersion":2,"position":[1320,0]
     },
     {
       "parameters": {
-        "method":"PATCH","url":"={{$env.SUPABASE_URL + '/rest/v1/agent_jobs?id=eq.' + $json.job_id}}",
-        "sendHeaders":true,"headerParameters":{"parameters":[
-          {"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Content-Type","value":"application/json"},{"name":"Prefer","value":"return=minimal"}
-        ]},"sendBody":true,"contentType":"raw","rawContentType":"application/json",
-        "body":"={{JSON.stringify({status:($json.approvals.length||$json.exceptions.length)?'waiting_approval':'completed',output_payload:$json.out,completed_at:new Date().toISOString()})}}","options":{}
+        "method":"POST","url":"={{$env.SUPABASE_URL + '/rest/v1/rpc/persist_audit_agent_result'}}",
+        "sendHeaders":true,
+        "headerParameters":{"parameters":[
+          {"name":"apikey","value":"={{$env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Authorization","value":"={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"},{"name":"Content-Type","value":"application/json"}
+        ]},
+        "sendBody":true,"contentType":"raw","rawContentType":"application/json",
+        "body":"={{JSON.stringify({p_job_id:$json.job_id,p_audit_lead_id:$json.lead_id,p_output:$json.output})}}","options":{}
       },
-      "id":"savejob","name":"Save Agent Output","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1540,0]
+      "id":"persist","name":"Persist Agent Result","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1540,0]
     },
     {
-      "parameters":{"respondWith":"json","responseBody":"={{JSON.stringify({ok:true,lead_id:$('Build Approval + Exception Rows').first().json.lead_id,job_id:$('Build Approval + Exception Rows').first().json.job_id,approvals:$('Build Approval + Exception Rows').first().json.approvals.length,exceptions:$('Build Approval + Exception Rows').first().json.exceptions.length})}}","options":{}},
+      "parameters":{"respondWith":"json","responseBody":"={{JSON.stringify({ok:true,result:$json})}}","options":{}},
       "id":"respond","name":"Respond","type":"n8n-nodes-base.respondToWebhook","typeVersion":1.4,"position":[1760,0]
     }
   ],
@@ -76,9 +72,9 @@
     "Validate Audit Input":{"main":[[{"node":"Create Audit Agent Job","type":"main","index":0}]]},
     "Create Audit Agent Job":{"main":[[{"node":"Attach Job ID","type":"main","index":0}]]},
     "Attach Job ID":{"main":[[{"node":"Run Audit Agent","type":"main","index":0}]]},
-    "Run Audit Agent":{"main":[[{"node":"Build Approval + Exception Rows","type":"main","index":0}]]},
-    "Build Approval + Exception Rows":{"main":[[{"node":"Save Agent Output","type":"main","index":0}]]},
-    "Save Agent Output":{"main":[[{"node":"Respond","type":"main","index":0}]]}
+    "Run Audit Agent":{"main":[[{"node":"Build Persist Payload","type":"main","index":0}]]},
+    "Build Persist Payload":{"main":[[{"node":"Persist Agent Result","type":"main","index":0}]]},
+    "Persist Agent Result":{"main":[[{"node":"Respond","type":"main","index":0}]]}
   },
   "active": false,
   "settings":{"executionOrder":"v1","timezone":"Asia/Karachi"},
