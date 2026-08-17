@@ -1,17 +1,21 @@
 {
   "program": "CollectIQ",
-  "version": "0.3",
+  "version": "0.4-agentic",
   "modules": [
     "01_landing_intake",
     "02_audit_engine",
     "03_report_renderer",
     "04_reviewer_dashboard",
     "05_n8n_e2e_audit",
-    "06_leadgen_apify"
+    "06_leadgen_apify",
+    "07_recovery_sprint",
+    "08_agent_foundation"
   ],
-  "core_positioning": "Accounts Receivable Intelligence + Managed Recovery",
+  "core_positioning": "AI AR Recovery Analyst + Managed Recovery",
   "leadgen": "Apify multi-source hiring signals",
   "database": "Supabase",
   "automation": "n8n",
-  "audit_engine": "Python/FastAPI"
+  "audit_engine": "Python/FastAPI deterministic finance engine",
+  "agent_service": "Provider-agnostic OpenAI-compatible Python/FastAPI service with DeepSeek support",
+  "autonomy_policy": "Green autonomous, Amber approval-gated, Red founder-controlled"
 }
