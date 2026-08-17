@@ -1,0 +1,14 @@
+model: deepseek/deepseek-v4-pro
+weak-model: deepseek/deepseek-v4-flash
+env-file: .env
+git: true
+auto-commits: true
+dirty-commits: false
+show-diffs: true
+auto-lint: true
+auto-test: false
+analytics-disable: true
+read:
+  - AGENTS.md
+  - ARCHITECTURE.md
+  - README.md
