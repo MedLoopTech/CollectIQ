@@ -11,7 +11,13 @@
     "07_recovery_sprint",
     "08_agent_foundation"
   ],
-  "core_positioning": "AI AR Recovery Analyst + Managed Recovery",
+  "core_positioning": "AI AR Recovery Analyst",
+  "commercial_wedge": [
+    "Free AR Recovery Audit",
+    "$250 Recovery Sprint",
+    "$300-$500/month Managed AR Intelligence",
+    "Optional self-serve SaaS later"
+  ],
   "leadgen": "Apify multi-source hiring signals",
   "database": "Supabase",
   "automation": "n8n",
