@@ -627,6 +627,65 @@ decision first (verified live: `authenticated` can move a proposal's
 `status` to `approved`/`rejected` but not `promoted` — only
 `service_role` can do that).
 
+### Horizontal Validation, Aim #2 (PR16)
+
+`AIMFOLD_MASTER_GOAL.md` section 41: *"Aimfold is not considered
+successfully generalized until materially different Aims operate on the
+same core engine without changing engine code."* PR16 is that test, not
+new capability — **the actual deliverable is that this PR touches zero
+files under `aimfold_core/*.py`**. Everything is data: one new migration
+(`20260819121100_seed_career_discovery_aim.sql`) and one new evaluation
+dataset (`aimfold_core/evaluation/dataset_career_discovery.py`).
+
+- **The compiled Aim is not hand-authored.** It's the real, live,
+  unedited output of the unmodified PR4 Aim Compiler
+  (`gemini-flash-lite-latest`) given `AIMFOLD_MASTER_GOAL.md` section 3's
+  own Career Aim example verbatim: *"Find finance/data roles where my
+  finance transformation background creates an unusual advantage."*
+  Editing the compiler's output by hand to make it "better" would have
+  defeated the entire point of this PR — it would prove I can special-
+  case the engine for a second domain, not that the engine generalizes.
+- **Materially different by every axis section 41 names**, confirmed
+  live in Postgres, not just asserted: `target_entity_types = ["job",
+  "employer"]` (CollectIQ: `["company"]`), `opportunity_type =
+  'career_discovery'`, `likely_actions = ["apply", "research", "save"]`
+  (CollectIQ: `["contact"]`), and — checked directly — **zero overlapping
+  scoring_weights labels** between the two Aims (CollectIQ:
+  `AR hiring, collections/credit control, ageing, ...`; Career:
+  `Finance transformation focus, Systems and process modernization,
+  Data and analytics integration`).
+- **Reuses the same two source connectors** (`linkedin_jobs_apify`,
+  `indeed_jobs_apify`) CollectIQ already uses, with career-relevant
+  search keywords — proving connector reuse across domains, not just the
+  compiler/evidence/scoring layers.
+- **Ran the identical, unmodified pipeline live** — a second 5-example
+  labeled dataset (`CAREER_DISCOVERY_EVAL_V1`, same five evaluable
+  categories as PR13's dataset) through `run_evaluation()` exactly as
+  written, no branch or special case for this Aim anywhere in the call
+  path. Stage 1 qualification predictions were correct for all 5 before
+  any live call (free, deterministic); the live Gemini run then produced
+  `calibration_accuracy=0.667`, `evidence_grounding_accuracy=0.667`.
+- **A real, disclosed limitation surfaced by this run, not hidden**: the
+  dataset's false-positive example (a marketing-analytics posting that
+  coincidentally uses finance-transformation-adjacent language) was
+  *not* cleanly rejected the way PR13's AR/VR false positive was —
+  Stage 2 matched 2 of 3 positive_criteria and scored it 58.6/100
+  despite Gemini's own explanation noting the role sits in "a marketing
+  context rather than a finance department." Root cause: this Aim's
+  Compiler-generated `positive_criteria` are worded more abstractly than
+  CollectIQ's crisp, AR-specific ones, giving Stage 2 more room to credit
+  a topically-adjacent-but-wrong-domain posting. The dataset's expected
+  values were **not** loosened to hide this — see
+  `dataset_career_discovery.py`'s notes on that example. The right fix is
+  a `learning_proposal` (PR15) refining this Aim's wording later, not
+  hand-editing the Compiler's output now.
+- **Tenant isolation confirmed live across the two Aims specifically**
+  (not just in the abstract): seeded Aim #2 under a distinct tenant
+  (clearly labeled `career-discovery-validation`, not disguised as a
+  real customer) and confirmed an authenticated member of that tenant
+  sees only their own Aim — CollectIQ's is invisible to them, and vice
+  versa.
+
 ## Running the test suites
 
 ```bash
