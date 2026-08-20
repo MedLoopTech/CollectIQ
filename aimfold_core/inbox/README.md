@@ -1,5 +1,12 @@
 # Opportunity Inbox (PR10, feedback wiring added in PR11)
 
+**Superseded by `aimfold_core/portal/`** as the primary operator surface
+— the Portal is a fuller, Aimfold-branded multi-view app (Home, Aims,
+Opportunities, Watchlist, Activity, Insights, Settings) that reuses this
+page's exact proven auth/query/write logic for its own Opportunities
+view. This page is kept as-is, not deleted — still real, still tested,
+still a valid minimal single-view alternative.
+
 The operator-facing surface `AIMFOLD_MASTER_GOAL.md` section 46 describes:
 **Create Aim → Aimfold watches → best Opportunities appear → inspect why →
 act/skip → Aimfold learns.** This is the "best Opportunities appear →
