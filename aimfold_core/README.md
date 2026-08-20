@@ -853,6 +853,20 @@ connectors independently of the plain text columns that already carry
 that information (`aim_versions.compiler_prompt_version`,
 `sources.connector_version`), and nothing runs A/B experiments yet.
 
+### Security and multi-tenant hardening (PR19)
+
+Pure SQL/RLS — no new `aimfold_core` Python module. Full detail lives in
+`supabase/README.md`'s "Security audit findings" section:
+`20260819121500_security_hardening.sql` fixes three real gaps found by
+systematically auditing every RLS policy shipped PR1-18 (a `tenant_members`
+privilege-escalation path to `'owner'`, `learning_proposals` decision-
+attribution spoofing, and `feedback`/`outcomes` cross-tenant `opportunity_id`/
+`aim_id` reassignment), and wires up `audit_log` — schema-only since PR1,
+never previously populated — via two `SECURITY DEFINER` triggers. Every
+finding was confirmed live with a real attack-scenario test (Postgres
+roles, not SQL inspection) both before the fix (attack succeeds) and
+after (attack rejected, legitimate use unaffected).
+
 ## Running the test suites
 
 ```bash

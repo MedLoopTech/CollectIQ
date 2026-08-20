@@ -44,6 +44,7 @@ recommended PR sequence:
 | `20260819121200_sources_planned_status.sql` | PR17 | Additive: adds `'planned'` to `sources.status`'s CHECK constraint (previously `active`/`disabled`/`deprecated`) — needed to honestly register a connector that's in the catalog but has no working implementation yet (see next row), rather than mislabeling it `'disabled'`. |
 | `20260819121300_seed_funding_discovery_aim.sql` | PR17 | Seeds Aim #3 of section 41's Horizontal Validation (Funding/Grant Discovery — the section requirement's minimum of three materially different Aims). Same shape as PR16's seed, plus one new `'planned'`-status source connector (`grants_database_web_search`) and three `is_experimental=true` signal hypotheses against it, since no real grant-database scraper exists in this repo. |
 | `20260819121400_observability_schema.sql` | PR18 | `model_runs` (one row per LLM call — provider, model, tokens, latency, estimated cost, success/failure) and `workflow_runs` (one row per execution of a multi-step batch computation — `evaluation_run`/`proposal_test`/`aim_memory_recompute`). Both select-only for `authenticated`, populated by a backend job. `aim_id` is nullable on both (a fresh Aim compilation happens before an `aims` row exists); `tenant_id` is `not null` on both — always known, since every real call happens within an authenticated tenant member's request context. |
+| `20260819121500_security_hardening.sql` | PR19 | Fixes three real RLS gaps found by auditing every policy shipped PR1-18 (not new features) — see the file header and the "Security audit findings" section below — and wires up `audit_log` (schema-only since PR1, never populated) via two `SECURITY DEFINER` triggers on `tenant_members` and `learning_proposals`. |
 
 `06_leadgen_apify/collectiq_apify_multisource_leadgen_v03.json` is the
 workflow that now reads this seed data instead of hardcoding it — see
@@ -116,3 +117,66 @@ ON ALL TABLES` only covers tables that already exist, which is not how
 Supabase's project bootstrap works — then exercised as the `anon` /
 `authenticated` / `service_role` Postgres roles with a stubbed `auth`
 schema) — not just read for syntax.
+
+### Security audit findings (PR19)
+
+`20260819121500_security_hardening.sql` is the result of reading every
+RLS policy shipped PR1-18 and asking "what could an authenticated member
+actually write that this policy doesn't intend to allow" — the same
+method that found PR15's column-GRANT-without-REVOKE bug, applied
+systematically instead of once. Three real, narrow gaps, each confirmed
+with a live attack-scenario test (real Postgres roles, not just SQL
+inspection) both before the fix (attack succeeds) and after (attack
+rejected, legitimate use still works):
+
+1. **`tenant_members` privilege escalation.** `tenant_members_manage_admin`
+   checked only the *actor's* role (owner/admin), never what row they
+   were writing. Live-confirmed: an `admin` could insert a new member
+   with `role='owner'`, update their own row to `role='owner'`, or
+   delete an existing owner's row outright. Fixed by additionally
+   requiring the actor be `'owner'` whenever the row being written
+   currently has (or is being assigned) `role='owner'`.
+2. **`learning_proposals` decision-attribution spoofing.** The
+   decide-a-proposal policy never checked `decided_by = auth.uid()` —
+   any tenant member deciding a proposal could attribute that decision
+   to an arbitrary uuid. Fixed by adding that check to the policy's
+   `WITH CHECK`.
+3. **`feedback`/`outcomes` cross-tenant reassignment.** PR11's original
+   design comment (`20260819120800_feedback_outcomes_schema.sql`,
+   still visible around line 139) explicitly reasoned there was "no
+   adjacent invariant to protect beyond own tenant, own row" for
+   `outcomes` — true for `tenant_id` itself, but `opportunity_id`/
+   `aim_id` were never checked to belong to that *same* tenant. A user
+   who is a member of two tenants (an ordinary, supported scenario —
+   section 31 requires multi-tenant support) could attach a fabricated
+   `feedback`/`outcomes` row to a *different* tenant's opportunity,
+   corrupting that tenant's PR14/PR18 cost and outcome analytics. Fixed
+   with a new `public.opportunity_and_aim_belong_to_tenant()` helper
+   (same non-`SECURITY DEFINER`, RLS-respecting pattern as
+   `is_tenant_member()`) called from all three affected policies
+   (`feedback` insert, `outcomes` insert, `outcomes` update).
+
+Also: `audit_log` (PR1) had existed since the very first migration with
+a comment saying "inserts are service-role only" and, until this PR,
+**nothing ever inserted into it** — checked by grepping every migration
+and every Python module for `audit_log`; there were zero writes anywhere
+in the codebase. Rather than open it to direct client inserts (which a
+future buggy or malicious client could simply skip), two `SECURITY
+DEFINER` triggers populate it automatically on `tenant_members` changes
+and `learning_proposals` decisions — the two genuinely administrative
+write paths that exist today. This is tamper-resistant in a way an
+application-level "also call this insert" convention isn't: the audit
+row gets written even if a future UI or raw API call makes the
+underlying change and forgets to log it. `opportunities.lifecycle_state`
+(PR10) and `feedback` (PR11) already have their own purpose-built audit
+trails (`opportunity_lifecycle_events`, and `feedback` itself is already
+an immutable decision record) — a duplicate generic `audit_log` row for
+the same event would carry no new information, so those two
+deliberately don't also trigger here.
+
+**Deliberately not done in PR19**: rate limiting and secure webhook
+validation (both named in section 33) need an API gateway or
+edge-function layer that doesn't exist in this repo yet — today's only
+write surface is PostgREST + RLS directly. Building either now would
+mean nothing real enforces them; same "don't build for what doesn't
+exist" discipline as every earlier PR's "deliberately not built" notes.
