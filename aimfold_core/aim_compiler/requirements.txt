@@ -1,0 +1,9 @@
+pydantic>=2.0,<3
+fastapi>=0.100
+uvicorn>=0.23
+
+# Only needed to actually run AnthropicLLMClient / GeminiLLMClient (not
+# needed for schema validation, the stub-backed tests, or the FastAPI app
+# to import). AI_PROVIDER env var picks which one api.py uses.
+anthropic>=0.40
+google-genai>=0.3

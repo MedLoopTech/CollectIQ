@@ -1,0 +1,377 @@
+{
+  "name": "CollectIQ - Apify Multi-Source Hiring Signals v0.3 (Aim-driven)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily Signal Scan",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL + '/rest/v1/aim_versions?aim_id=eq.' + $env.AIMFOLD_COLLECTIQ_AIM_ID + '&is_current=eq.true&select=id,compiled_spec'}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "load_aim",
+      "name": "Load Active Aim",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// PostgREST returns a JSON array; n8n normally splits that into one item\n// per row already, but handle both shapes defensively (same pattern as\n// 05_n8n_e2e_audit's 'Normalize Lead' node).\nconst rows = Array.isArray($json) ? $json : ($json.items || $json.data || [$json]);\nconst row = rows[0];\nif (!row || !row.id) {\n  throw new Error('No current AimVersion found for AIMFOLD_COLLECTIQ_AIM_ID — has 20260819120200_seed_collectiq_aim.sql been applied and approved?');\n}\nreturn [{json: {aim_version_id: row.id, compiled_spec: row.compiled_spec}}];"
+      },
+      "id": "parse_aim",
+      "name": "Parse Aim Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL + '/rest/v1/aim_signal_hypotheses?aim_version_id=eq.' + $json.aim_version_id + '&status=eq.active&select=source_key,signal_type,is_experimental,connector_params'}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "load_hypotheses",
+      "name": "Load Signal Hypotheses",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Replaces the hardcoded search list from v0.2's 'Build Source Searches'.\n// Each input item is one active aim_signal_hypotheses row for the current\n// AimVersion. The mapping from source_key to an actual Apify actor env var\n// is connector-level plumbing, not Aim data, so it stays here — same as\n// v0.2 kept actor IDs in env vars rather than in the search list.\nconst CONNECTORS = {\n  linkedin_jobs_apify: { actorEnvVar: 'APIFY_LINKEDIN_ACTOR_ID', tag: 'linkedin' },\n  indeed_jobs_apify: { actorEnvVar: 'APIFY_INDEED_ACTOR_ID', tag: 'indeed' }\n};\n\nconst out = [];\nfor (const item of $input.all()) {\n  const h = item.json;\n  const connector = CONNECTORS[h.source_key];\n  if (!connector) {\n    // Unknown source_key with no actor mapping yet — skip this one\n    // hypothesis rather than failing the whole run (a failure in one\n    // source must not break the Aim).\n    continue;\n  }\n  const params = h.connector_params || {};\n  out.push({json: {\n    source: connector.tag,\n    actor: $env[connector.actorEnvVar],\n    query: params.keyword,\n    location: params.location\n  }});\n}\nreturn out;"
+      },
+      "id": "searches",
+      "name": "Build Searches From Aim Hypotheses",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const x=$json;\n// Verified against live Apify actor input schemas (jobscrawler~linkedin-jobs-scraper,\n// jobscrawler~indeed-jobs-scraper) on 2026-08-16: both actors take the same field\n// names — keyword, location, country, maxItems.\n//\n// v0.3 fix: v0.2 hardcoded country:'US' for every search, including the UK\n// credit-controller searches, which contradicts the Aim's own declared\n// geography (compiled_spec.geography = ['United States','United Kingdom']).\n// Derive country from location instead.\nconst COUNTRY_BY_LOCATION = { 'United States': 'US', 'United Kingdom': 'GB' };\nconst input = {\n  keyword: x.query,\n  location: x.location,\n  country: COUNTRY_BY_LOCATION[x.location] || 'US',\n  maxItems: Number($env.APIFY_MAX_RESULTS_PER_SEARCH || 50)\n};\nreturn [{json:{...x, actor_input:input}}];"
+      },
+      "id": "input",
+      "name": "Build Actor Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{'https://api.apify.com/v2/acts/' + $json.actor + '/run-sync-get-dataset-items'}}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{$env.APIFY_TOKEN}}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{JSON.stringify($json.actor_input)}}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "actor",
+      "name": "Run Apify Actor + Get Dataset",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const sourceCfg=$('Build Actor Input').item.json;\nconst rows=Array.isArray($json) ? $json : ($json.items || $json.data || []);\n\nfunction first(o, keys){\n  for(const k of keys){\n    const parts=k.split('.');\n    let v=o;\n    for(const p of parts) v=v?.[p];\n    if(v!==undefined && v!==null && v!=='') return v;\n  }\n  return null;\n}\n\n// LinkedIn's public search cards sometimes duplicate the title/company text\n// (e.g. \"Acme Inc\\n...\\nAcme Inc\") and append UI badges like \"Be an early\n// applicant\" to the location. Collapse whitespace, dedupe exact-repeated\n// halves, and strip known badge text before storing.\nconst BADGE_PHRASES = [/\\bbe an early applicant\\b/gi, /\\bactively hiring\\b/gi, /\\bpromoted\\b/gi];\nfunction clean(s){\n  let t = String(s||'').replace(/\\s+/g,' ').trim();\n  BADGE_PHRASES.forEach(re => { t = t.replace(re, '').trim(); });\n  const half = t.length / 2;\n  if (Number.isInteger(half)) {\n    const a = t.slice(0, half).trim();\n    const b = t.slice(half).trim();\n    if (a && a === b) t = a;\n  }\n  return t;\n}\n\nreturn rows.map(r=>{\n  const company=first(r,['companyName','company','company_name','employer.name','hiringOrganization.name']);\n  const title=first(r,['title','jobTitle','job_title','positionName','name']);\n  const loc=first(r,['location','jobLocation','job_location','formattedLocation']);\n  const desc=first(r,['description','jobDescription','job_description','descriptionText','text']);\n  const url=first(r,['url','jobUrl','job_url','link','applyUrl']);\n  const id=first(r,['id','jobId','job_id','jobPostingId']);\n  const posted=first(r,['postedDate','postedAt','posted_at','datePosted','publishedAt','postedTime']);\n  const company_name=clean(company);\n  const job_title=clean(title);\n  const job_location=clean(loc);\n  const fingerprint=[company_name.toLowerCase(),job_title.toLowerCase(),job_location.toLowerCase()].join('|');\n  return {json:{\n    source:sourceCfg.source,\n    search_query:sourceCfg.query,\n    company_name:company_name||null,\n    job_title:job_title||null,\n    job_location:job_location||null,\n    description:clean(desc),\n    source_url:url||null,\n    source_job_id:id||null,\n    posted_at:posted||null,\n    fingerprint,\n    raw:r\n  }};\n}).filter(x=>x.json.company_name && x.json.job_title);"
+      },
+      "id": "normalize",
+      "name": "Normalize Multi-Source Jobs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Replaces v0.2's hardcoded regex/points list — now reads compiled_spec.scoring_weights\n// from the Aim fetched at the top of this workflow, so scoring changes are a data\n// edit (new AimVersion), not a workflow edit.\nconst scoringWeights = $('Parse Aim Config').first().json.compiled_spec.scoring_weights || [];\nconst text = `${$json.job_title||''} ${$json.description||''}`.toLowerCase();\nlet score = 0;\nconst signals = [];\nfor (const rule of scoringWeights) {\n  const re = new RegExp(rule.pattern);\n  if (re.test(text)) {\n    score += rule.points;\n    signals.push(rule.label);\n  }\n}\nscore = Math.min(score, 100);\nreturn [{json: {...$json, prospect_score: score, signals, fit_reason: signals.join(', ')}}];"
+      },
+      "id": "score",
+      "name": "Score Signal Against Aim",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "fit",
+              "leftValue": "={{$json.prospect_score}}",
+              "rightValue": "={{$('Parse Aim Config').first().json.compiled_spec.confidence_thresholds.qualified_signal_min_score}}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fit",
+      "name": "Qualified Signal?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1980,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SUPABASE_URL + '/rest/v1/lead_prospects?on_conflict=fingerprint'}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{JSON.stringify({fingerprint:$json.fingerprint,company_name:$json.company_name,job_title:$json.job_title,job_location:$json.job_location,posted_at:String($json.posted_at||''),source:'Apify '+$json.source,source_platform:$json.source,source_job_id:String($json.source_job_id||''),source_url:$json.source_url,search_query:$json.search_query,raw_signal:$json.raw,prospect_score:$json.prospect_score,signals:$json.signals,fit_reason:$json.fit_reason,status:'new',last_seen_at:new Date().toISOString()})}}",
+        "options": {}
+      },
+      "id": "save",
+      "name": "Upsert Qualified Signal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2200,
+        -80
+      ]
+    }
+  ],
+  "connections": {
+    "Daily Signal Scan": {
+      "main": [
+        [
+          {
+            "node": "Load Active Aim",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Active Aim": {
+      "main": [
+        [
+          {
+            "node": "Parse Aim Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Aim Config": {
+      "main": [
+        [
+          {
+            "node": "Load Signal Hypotheses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Signal Hypotheses": {
+      "main": [
+        [
+          {
+            "node": "Build Searches From Aim Hypotheses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Searches From Aim Hypotheses": {
+      "main": [
+        [
+          {
+            "node": "Build Actor Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Actor Input": {
+      "main": [
+        [
+          {
+            "node": "Run Apify Actor + Get Dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Apify Actor + Get Dataset": {
+      "main": [
+        [
+          {
+            "node": "Normalize Multi-Source Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Multi-Source Jobs": {
+      "main": [
+        [
+          {
+            "node": "Score Signal Against Aim",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Signal Against Aim": {
+      "main": [
+        [
+          {
+            "node": "Qualified Signal?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qualified Signal?": {
+      "main": [
+        [
+          {
+            "node": "Upsert Qualified Signal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Karachi"
+  },
+  "versionId": "collectiq-apify-leadgen-v03-aim-driven"
+}

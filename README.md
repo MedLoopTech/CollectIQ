@@ -10,6 +10,14 @@ The commercial wedge is:
 
 ---
 
+> **In progress:** this repo is being generalized into **Aimfold**, a
+> multi-tenant opportunity-intelligence engine, per
+> `AIMFOLD_MASTER_GOAL.md` (source of truth, not checked into this repo —
+> see `supabase/README.md` for the schema side and `aimfold_core/README.md`
+> for the engine code). CollectIQ becomes the first Aim rather than being
+> the architecture itself. The six numbered modules below are the
+> CollectIQ pilot and are unaffected until it's their turn to convert.
+
 ## 1. Program modules
 
 ### 01 — Landing + Audit Intake

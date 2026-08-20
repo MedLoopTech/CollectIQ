@@ -1,8 +1,63 @@
-# CollectIQ Apify Multi-Source Lead Gen v0.2
+# CollectIQ Apify Multi-Source Lead Gen
 
-This upgrades the hiring-signal collector from a single jobs-search source to Apify Actors.
+## v0.3 — Aim-driven (current)
 
-## Architecture
+`collectiq_apify_multisource_leadgen_v03.json` is the current workflow.
+It runs the exact same six searches and the same 11-rule keyword scorer
+as v0.2, but neither is hardcoded in the workflow anymore — both are read
+from Aimfold's Aim schema (see `AIMFOLD_MASTER_GOAL.md`, PR3 in its dev
+sequence) at the start of each run:
+
+```
+Load Active Aim (aim_versions.compiled_spec, is_current=true)
+→ Load Signal Hypotheses (aim_signal_hypotheses for that version)
+→ Build Searches From Aim Hypotheses
+→ [unchanged v0.2 pipeline: Apify → normalize → score → threshold → upsert]
+```
+
+This is CollectIQ converted into the first Aim per Aimfold's own dev
+sequence — the search list, keyword-scoring weights and qualification
+threshold now all live in
+`supabase/migrations/20260819120200_seed_collectiq_aim.sql` as one
+`aims` row, one approved+current `aim_versions` row, and six
+`aim_signal_hypotheses` rows (one per search). Changing what CollectIQ
+scouts for is now a data change (a new AimVersion), not a workflow edit.
+
+Two real bugs found while doing this conversion were fixed in v0.3, not
+just carried forward:
+
+1. **Dropped columns**: v0.2's `Upsert Qualified Signal` never populated
+   `source_platform`, `search_query` or `raw_signal`, even though the
+   normalizer already computed all three and the schema has had columns
+   for them since `supabase_v02_additions.sql`. v0.3 includes them.
+2. **Wrong country code**: v0.2 hardcoded `country: 'US'` in
+   `Build Actor Input` for every search, including the UK
+   credit-controller ones. v0.3 derives it from `location`
+   (`United States` → `US`, `United Kingdom` → `GB`).
+
+Both the scoring-equivalence (v0.2 hardcoded rules vs. v0.3 reading the
+same rules from `compiled_spec.scoring_weights`) and the search-list
+reconstruction were verified with a standalone Node script comparing
+outputs byte-for-byte before this workflow was written — v0.3 produces
+identical scores/signals to v0.2 for the same input, only the country
+fix changes behavior.
+
+**Before activating v0.3**, apply, in order:
+`20260819120000_core_multi_tenant_schema.sql` →
+`20260819120150_aim_signal_hypotheses_connector_params.sql` →
+`20260819120200_seed_collectiq_aim.sql` (see `supabase/README.md`), and
+set `AIMFOLD_COLLECTIQ_AIM_ID` in your n8n environment (see
+`env.example`).
+
+`collectiq_apify_multisource_leadgen_v02.json` is kept as-is for
+rollback/reference — it still reflects exactly what has run in
+production (including the two bugs above).
+
+## v0.2 — Apify Actors (superseded)
+
+This upgraded the hiring-signal collector from a single jobs-search source to Apify Actors.
+
+### Architecture
 
 Apify LinkedIn Jobs Actor
 +
@@ -47,6 +102,13 @@ Before activating the schedule:
 This is important because Actor marketplace schemas are not standardized.
 
 ## Suggested initial searches
+
+As of v0.3, only "accounts receivable" / "collections specialist" (US)
+and "credit controller" (UK) are live, one `aim_signal_hypotheses` row
+each per source — see `20260819120200_seed_collectiq_aim.sql`. Adding
+one of the searches below is now a new `aim_signal_hypotheses` row
+(and, once the Aim Compiler/approval flow exists in PR4, a new
+AimVersion) rather than an edit to `Build Searches From Aim Hypotheses`.
 
 US:
 - accounts receivable

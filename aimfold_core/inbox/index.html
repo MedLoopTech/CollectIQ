@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aimfold Opportunity Inbox</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230B1D31'/%3E%3Crect x='19' y='34' width='8' height='15' rx='2' fill='white'/%3E%3Crect x='30' y='25' width='8' height='24' rx='2' fill='%234DE1D0'/%3E%3Crect x='41' y='16' width='8' height='33' rx='2' fill='%2300B5A6'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#F2F4F7;--surface:#fff;--ink:#0B1D31;--muted:#5b6b81;--line:#e4e9ef;
+  --navy:#0B1D31;--navy2:#132a49;--blue:#2D9CDB;--teal:#00B5A6;--aqua:#4DE1D0;--soft:#e7f6f4;
+  --green:#00857a;--red:#b42318;--amber:#FFB020;
+  --shadow-sm:0 2px 8px rgba(11,29,49,.05);--shadow-md:0 12px 32px rgba(11,29,49,.08);--shadow-lg:0 24px 60px rgba(11,29,49,.14);
+  --radius:18px;--radius-sm:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Poppins",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+
+.brand-mark{width:30px;height:30px;flex:none;display:inline-block;color:transparent;font-size:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M78 24 A36 36 0 1 0 78 76' fill='none' stroke='%230B1D31' stroke-width='13' stroke-linecap='round'/%3E%3Crect x='39' y='55' width='10' height='21' rx='3' fill='%2300B5A6'/%3E%3Crect x='53' y='41' width='10' height='35' rx='3' fill='%2300B5A6'/%3E%3Crect x='67' y='27' width='10' height='49' rx='3' fill='%234DE1D0'/%3E%3C/svg%3E");background-size:contain;background-repeat:no-repeat;background-position:center}
+
+.app{display:grid;grid-template-columns:320px 1fr;min-height:100vh}
+.side{background:linear-gradient(180deg,var(--navy),#0a1c30);color:#fff;padding:24px;display:flex;flex-direction:column}
+.side .brand-mark{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M78 24 A36 36 0 1 0 78 76' fill='none' stroke='%23ffffff' stroke-width='13' stroke-linecap='round'/%3E%3Crect x='39' y='55' width='10' height='21' rx='3' fill='%2300B5A6'/%3E%3Crect x='53' y='41' width='10' height='35' rx='3' fill='%2300B5A6'/%3E%3Crect x='67' y='27' width='10' height='49' rx='3' fill='%234DE1D0'/%3E%3C/svg%3E")}
+.brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;margin-bottom:4px}
+.side small{opacity:.55;font-size:12px;padding-left:40px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}
+.filters button{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;border-radius:999px;padding:6px 11px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.filters button.active{background:#fff;color:var(--ink)}
+.queue{display:grid;gap:8px;margin-top:14px;overflow-y:auto}
+.opp{padding:14px;border-radius:var(--radius-sm);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:background .15s ease,transform .15s ease}
+.opp:hover{background:rgba(255,255,255,.12);transform:translateX(2px)}
+.opp.active{background:#fff;color:var(--ink);box-shadow:var(--shadow-md)}
+.opp strong{display:block;font-size:14px}
+.opp span{font-size:11.5px;opacity:.7}
+.opp.active span{opacity:.55}
+.opp .score{float:right;font-weight:700}
+
+.main{padding:32px 36px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.top h1{margin:0;font-size:28px;letter-spacing:-.02em}
+.pill{padding:7px 12px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.03em;background:var(--soft);color:var(--blue);text-transform:uppercase}
+.pill.state-discovered,.pill.state-evaluating{background:#eef2f7;color:var(--muted)}
+.pill.state-qualified{background:#eaf1fb;color:var(--blue)}
+.pill.state-high_priority{background:#fff7ed;color:var(--amber)}
+.pill.state-actioned{background:#ecfdf5;color:var(--green)}
+.pill.state-held{background:#f3f0ff;color:#6d28d9}
+.pill.state-rejected,.pill.state-invalid,.pill.state-duplicate{background:#fef2f2;color:var(--red)}
+.pill.state-stale,.pill.state-expired{background:#f4f4f5;color:#71717a}
+.pill.state-revived{background:#ecfeff;color:#0e7490}
+
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:24px}
+.metric{background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px;box-shadow:var(--shadow-sm)}
+.metric strong{display:block;font-size:23px;letter-spacing:-.02em}
+.metric span{font-size:12px;color:var(--muted)}
+
+.qa{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sm)}
+.panel.full{grid-column:1/-1}
+h2{font-size:14px;margin:0 0 10px;letter-spacing:.01em;color:var(--muted);text-transform:uppercase;font-weight:700}
+.qa p{margin:0;font-size:14.5px;line-height:1.5}
+.qa .empty-note{color:var(--muted);font-style:italic}
+
+.evidence-item{padding:10px 12px;border-radius:10px;margin-bottom:8px;font-size:13.5px;line-height:1.45;border:1px solid var(--line)}
+.evidence-item.observed{background:#ecfdf5;border-color:#c8f4e6}
+.evidence-item.inference{background:#f5f3ff;border-color:#e3ddfb;font-style:italic}
+.evidence-badge{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:999px;margin-right:8px;vertical-align:middle}
+.evidence-badge.observed{background:var(--green);color:#fff}
+.evidence-badge.inference{background:#6d28d9;color:#fff}
+
+.dims{display:grid;gap:8px}
+.dim{display:grid;grid-template-columns:170px 1fr auto;gap:10px;align-items:center;font-size:13px}
+.dim .bar{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+.dim .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--blue))}
+.dim .pts{font-weight:700;text-align:right;min-width:56px}
+.dim .rationale{grid-column:1/-1;color:var(--muted);font-size:12px;margin-top:-4px}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{border:0;border-radius:11px;padding:12px 18px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px;transition:transform .15s ease,box-shadow .15s ease,opacity .15s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.green{background:linear-gradient(135deg,var(--green),#0d9488);color:#fff;box-shadow:0 8px 20px rgba(15,118,110,.28)}
+.btn.secondary{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.btn.secondary:hover{border-color:#c7d2e0}
+.btn.danger{background:#fff1f2;color:#9f1239;border:1px solid #fecdd3}
+
+.warn{padding:11px 13px;border-radius:var(--radius-sm);margin:8px 0;background:#fff7ed;color:#9a3412;font-size:13px}
+.empty{display:grid;place-items:center;min-height:70vh;color:var(--muted);font-size:15px}
+@media(max-width:980px){.app{grid-template-columns:1fr}.side{min-height:auto}.grid{grid-template-columns:1fr 1fr}.qa{grid-template-columns:1fr}.main{padding:24px 20px}}
+
+.login-wrap{min-height:100vh;display:grid;place-items:center;background:
+  radial-gradient(600px 320px at 12% 8%, rgba(37,99,235,.10), transparent 60%),
+  radial-gradient(560px 320px at 88% 4%, rgba(14,165,163,.10), transparent 60%),
+  var(--bg)}
+.login-panel{width:min(380px,calc(100% - 32px));background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow-lg)}
+.login-panel .brand{margin-bottom:18px;color:var(--ink)}
+.login-panel h1{font-size:20px;margin:0 0 4px}
+.login-panel p{color:var(--muted);font-size:13.5px;margin:0 0 22px}
+.login-panel label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+.login-panel input{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;margin-bottom:16px;font-family:inherit;transition:border-color .15s ease,box-shadow .15s ease}
+.login-panel input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+.login-panel .btn{width:100%}
+</style>
+</head>
+<body>
+<div id="loginScreen" class="login-wrap" style="display:none">
+  <form class="login-panel" id="loginForm">
+    <div class="brand"><span class="brand-mark">A</span><span>Aimfold Inbox</span></div>
+    <h1>Operator sign in</h1>
+    <p>Sign in with your Aimfold account.</p>
+    <label for="loginEmail">Email</label>
+    <input id="loginEmail" type="email" required autocomplete="username" />
+    <label for="loginPassword">Password</label>
+    <input id="loginPassword" type="password" required autocomplete="current-password" />
+    <button class="btn green" type="submit" id="loginBtn">Sign in</button>
+    <div id="loginError" class="warn" style="display:none;margin-top:14px"></div>
+  </form>
+</div>
+<div class="app" id="app" style="display:none">
+  <aside class="side">
+    <div class="brand"><span class="brand-mark">A</span><span>Aimfold Inbox</span></div>
+    <small>Best opportunities appear here — inspect why, act or skip</small>
+    <button class="btn secondary" id="logoutBtn" style="width:100%;margin-top:16px">Sign out</button>
+    <div class="filters" id="filters"></div>
+    <div class="queue" id="queue"></div>
+  </aside>
+
+  <main class="main">
+    <div id="empty" class="empty">Select an opportunity from the queue.</div>
+    <div id="content" style="display:none">
+      <div class="top">
+        <div>
+          <h1 id="entityTitle">Entity</h1>
+          <div id="aimLine" style="color:var(--muted);margin-top:4px;font-size:14px"></div>
+        </div>
+        <span class="pill" id="statePill">discovered</span>
+      </div>
+
+      <div class="grid">
+        <div class="metric"><strong id="mScore">-</strong><span>Total score</span></div>
+        <div class="metric"><strong id="mConfidence">-</strong><span>Confidence</span></div>
+        <div class="metric"><strong id="mEvidenceConf">-</strong><span>Evidence confidence</span></div>
+        <div class="metric"><strong id="mSourceConf">-</strong><span>Source confidence</span></div>
+      </div>
+
+      <div class="qa">
+        <section class="panel">
+          <h2>Why this?</h2>
+          <p id="whyThis" class="empty-note">No relevance explanation recorded yet.</p>
+        </section>
+        <section class="panel">
+          <h2>Why now?</h2>
+          <p id="whyNow" class="empty-note">No timing signal recorded.</p>
+        </section>
+        <section class="panel full">
+          <h2>What proves it?</h2>
+          <div id="evidence"></div>
+        </section>
+        <section class="panel full">
+          <h2>Score breakdown</h2>
+          <div class="dims" id="dims"></div>
+        </section>
+        <section class="panel full">
+          <h2>What next?</h2>
+          <p id="whatNext" class="empty-note">No recommended action yet.</p>
+          <div class="actions">
+            <button class="btn green" id="approveBtn">Approve</button>
+            <button class="btn secondary" id="holdBtn">Hold</button>
+            <button class="btn danger" id="rejectBtn">Reject</button>
+          </div>
+          <div id="rejectReasonRow" style="display:none;margin-top:14px">
+            <label style="display:block;font-weight:700;font-size:13px;margin-bottom:6px">Why? (required — structured feedback, AIMFOLD_MASTER_GOAL.md section 19)</label>
+            <select id="rejectReasonSelect" style="width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;margin-bottom:10px;font-size:14px"></select>
+            <div class="actions">
+              <button class="btn danger" id="confirmRejectBtn">Confirm reject</button>
+              <button class="btn secondary" id="cancelRejectBtn">Cancel</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// Same Supabase project this whole repo already points at (01_landing_intake,
+// 04_reviewer_dashboard commit the same URL + public anon key) — see
+// aimfold_core/inbox/README.md for why the Aimfold tables aren't live there yet.
+//
+// ?sbUrl=&sbKey= override the endpoint only — they do NOT bypass the
+// Supabase Auth login flow below (signInWithPassword still runs
+// normally against whatever backend is configured). Used to point this
+// unmodified page at a local Postgres+PostgREST sandbox for testing
+// without touching the real project; safe to leave in since it can't
+// skip authentication or grant any access RLS wouldn't already allow.
+const params = new URLSearchParams(location.search);
+const SUPABASE_URL = params.get("sbUrl") || "https://eubspkvwlkrakrtarwhb.supabase.co";
+const SUPABASE_ANON_KEY = params.get("sbKey") || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1YnNwa3Z3bGtyYWtydGFyd2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4ODI3ODcsImV4cCI6MjEwMjQ1ODc4N30._Icsf8j998P44dnriStY_bbFaFN7zUdw1kmFbVN74EU";
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let opportunities = [];
+let selected = null;
+let activeFilter = "all";
+
+const LIFECYCLE_FILTERS = ["all", "high_priority", "qualified", "discovered", "evaluating", "stale", "revived", "actioned", "held", "rejected"];
+
+// Must match aimfold_core/feedback/schema.py's RejectionReason and
+// 20260819120800_feedback_outcomes_schema.sql's rejection_reason check
+// constraint — tests/test_feedback.py cross-checks the Python side
+// against the migration; this list is the one copy that isn't
+// automatically checked against either, so keep it in sync by hand.
+const REJECTION_REASONS = [
+  "wrong_entity_type", "wrong_industry", "wrong_geography", "too_small", "too_large",
+  "weak_evidence", "poor_timing", "low_value", "already_known", "duplicate",
+  "irrelevant_signal", "source_unreliable", "not_eligible", "wrong_role",
+  "wrong_seniority", "poor_strategic_fit", "not_actionable", "other"
+];
+document.getElementById("rejectReasonSelect").innerHTML = REJECTION_REASONS.map(r=>
+  `<option value="${r}">${r.replace(/_/g,' ')}</option>`).join("");
+
+function showLogin(message){
+  document.getElementById("app").style.display = "none";
+  document.getElementById("loginScreen").style.display = "grid";
+  const err = document.getElementById("loginError");
+  if(message){ err.textContent = message; err.style.display = "block"; }
+  else { err.style.display = "none"; }
+}
+
+function showApp(){
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("app").style.display = "grid";
+  renderFilters();
+  loadQueue();
+}
+
+document.getElementById("loginForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const loginBtn = document.getElementById("loginBtn");
+  loginBtn.disabled = true;
+  loginBtn.textContent = "Signing in...";
+  try{
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if(error) throw error;
+    // Don't call showApp() here too — onAuthStateChange below fires on
+    // SIGNED_IN and calls it already. Calling it from both places raced
+    // two loadQueue() fetches, leaving `selected` pointing at an object
+    // from the first (now-discarded) `opportunities` array so DB writes
+    // succeeded but the sidebar silently kept showing the old state.
+  }catch(err){
+    showLogin(err.message || "Sign in failed.");
+  }finally{
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Sign in";
+  }
+});
+
+document.getElementById("logoutBtn").addEventListener("click", async ()=>{
+  await sb.auth.signOut();
+  selected = null;
+  showLogin();
+});
+
+sb.auth.onAuthStateChange((_event, session)=>{
+  if(session) showApp(); else showLogin();
+});
+
+(async function initAuth(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session) showApp(); else showLogin();
+})();
+
+function esc(v){ return String(v ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])); }
+function pct(v){ return (v===null||v===undefined) ? "-" : Math.round(Number(v)*100) + "%"; }
+
+function renderFilters(){
+  document.getElementById("filters").innerHTML = LIFECYCLE_FILTERS.map(f=>
+    `<button class="${f===activeFilter?'active':''}" onclick="setFilter('${f}')">${esc(f.replace(/_/g,' '))}</button>`
+  ).join("");
+}
+
+window.setFilter = function(f){
+  activeFilter = f;
+  renderFilters();
+  renderQueue();
+}
+
+async function loadQueue(){
+  const {data,error} = await sb
+    .from("opportunities")
+    .select(`
+      *,
+      entity:primary_entity_id(name,domain),
+      aim:aim_id(name),
+      opportunity_signals(
+        contribution_note,
+        signal:signal_id(title,description,source_url,extracted_evidence,published_at)
+      )
+    `)
+    .order("total_score",{ascending:false});
+  if(error){ document.getElementById("queue").innerHTML=`<div class="warn">${esc(error.message)}</div>`; return; }
+  opportunities = data || [];
+  renderQueue();
+  const visible = filteredOpportunities();
+  if(visible.length && !selected) selectOpportunity(visible[0].id);
+}
+
+function filteredOpportunities(){
+  if(activeFilter==="all") return opportunities;
+  return opportunities.filter(o=>o.lifecycle_state===activeFilter);
+}
+
+function renderQueue(){
+  const visible = filteredOpportunities();
+  document.getElementById("queue").innerHTML = visible.map(o=>`
+    <div class="opp ${selected?.id===o.id?'active':''}" onclick="selectOpportunity('${o.id}')">
+      <span class="score">${Math.round(o.total_score)}</span>
+      <strong>${esc(o.entity?.name || "Unknown entity")}</strong>
+      <span>${esc(o.lifecycle_state)} · ${esc(o.aim?.name || "")}</span>
+    </div>`).join("") || "<div style='opacity:.7;padding:10px'>No opportunities in this view.</div>";
+}
+
+window.selectOpportunity = function(id){
+  selected = opportunities.find(x=>x.id===id);
+  document.getElementById("rejectReasonRow").style.display = "none";
+  renderQueue();
+  renderSelected();
+}
+
+function renderSelected(){
+  if(!selected) return;
+  document.getElementById("empty").style.display="none";
+  document.getElementById("content").style.display="block";
+  document.getElementById("entityTitle").textContent = selected.entity?.name || "Unknown entity";
+  document.getElementById("aimLine").textContent = `${selected.aim?.name || "Unknown Aim"} · ${selected.opportunity_type}`;
+  const pill = document.getElementById("statePill");
+  pill.textContent = selected.lifecycle_state;
+  pill.className = "pill state-" + selected.lifecycle_state;
+
+  document.getElementById("mScore").textContent = Math.round(selected.total_score) + "/100";
+  document.getElementById("mConfidence").textContent = pct(selected.confidence);
+  document.getElementById("mEvidenceConf").textContent = pct(selected.evidence_confidence);
+  document.getElementById("mSourceConf").textContent = pct(selected.source_confidence);
+
+  document.getElementById("whyThis").textContent = selected.relevance_explanation || "No relevance explanation recorded yet.";
+  document.getElementById("whyThis").className = selected.relevance_explanation ? "" : "empty-note";
+  document.getElementById("whyNow").textContent = selected.why_now || "No timing signal recorded.";
+  document.getElementById("whyNow").className = selected.why_now ? "" : "empty-note";
+
+  // "What proves it?" — pulled from every linked signal's extracted_evidence.
+  // Evidence-First (AIMFOLD_MASTER_GOAL.md section 8): observed facts and
+  // AI inferences are rendered with visibly distinct styling, never merged,
+  // so a reviewer can tell at a glance which is which.
+  const evEl = document.getElementById("evidence");
+  const items = [];
+  (selected.opportunity_signals || []).forEach(link=>{
+    const ev = link.signal?.extracted_evidence || [];
+    ev.forEach(e=>{
+      if(e.type === "observed_fact" || e.type === "stage1_match"){
+        items.push({kind:"observed", text: e.text || `"${e.matched_text}" (${e.label})`});
+      } else if(e.type === "inference"){
+        items.push({kind:"inference", text: e.text});
+      }
+    });
+  });
+  evEl.innerHTML = items.length
+    ? items.map(i=>`<div class="evidence-item ${i.kind}"><span class="evidence-badge ${i.kind}">${i.kind==='observed'?'Observed':'AI inference'}</span>${esc(i.text)}</div>`).join("")
+    : `<p class="empty-note">No structured evidence linked to this opportunity yet.</p>`;
+
+  // Score breakdown from component_scores (aimfold_core.scoring.ExplainableScore, serialized)
+  const dims = selected.component_scores || [];
+  document.getElementById("dims").innerHTML = dims.length ? dims.map(d=>`
+    <div class="dim">
+      <span>${esc(d.name.replace(/_/g,' '))}</span>
+      <span class="bar"><i style="width:${Math.round((d.raw_value||0)*100)}%"></i></span>
+      <span class="pts">${(d.points||0).toFixed(1)}/${d.weight}</span>
+      <span class="rationale">${esc(d.rationale || "")}</span>
+    </div>`).join("") : "<p class='empty-note'>No score breakdown recorded yet.</p>";
+
+  const nextEl = document.getElementById("whatNext");
+  if(selected.recommended_action){
+    nextEl.innerHTML = `<strong>${esc(selected.recommended_action.replace(/_/g,' '))}</strong> — ${esc(selected.recommended_action_rationale || "")}`;
+    nextEl.className = "";
+  } else {
+    nextEl.textContent = "No recommended action yet.";
+    nextEl.className = "empty-note";
+  }
+
+  const humanControlled = ["actioned","held","rejected","duplicate","invalid"].includes(selected.lifecycle_state);
+  document.getElementById("approveBtn").disabled = humanControlled;
+  document.getElementById("holdBtn").disabled = humanControlled;
+  document.getElementById("rejectBtn").disabled = humanControlled;
+}
+
+// feedback_type is the human's judgment (accepted/held/rejected/...);
+// lifecycle_state is the opportunity's own bookkeeping state
+// (actioned/held/rejected/...) — related but distinct, see
+// 20260819120800_feedback_outcomes_schema.sql's header comment. "Approve"
+// maps to feedback_type='accepted' + lifecycle_state='actioned'.
+async function recordDecision(feedbackType, toState, rejectionReason){
+  if(!selected) return;
+  const fromState = selected.lifecycle_state;
+
+  // Learning Loop snapshot (AIMFOLD_MASTER_GOAL.md section 21) — captured
+  // from `selected` BEFORE any write, so it reflects what was actually
+  // predicted at decision time even if a future rescoring pipeline later
+  // changes this opportunity's live total_score/recommended_action.
+  const predictionSnapshot = {
+    predicted_total_score: selected.total_score,
+    predicted_confidence: selected.confidence,
+    predicted_recommended_action: selected.recommended_action,
+    predicted_lifecycle_state: fromState,
+    aim_version_id: selected.aim_version_id,
+    scoring_version: selected.scoring_version
+  };
+
+  const { error: updateError } = await sb.from("opportunities").update({lifecycle_state: toState}).eq("id", selected.id);
+  if(updateError){ alert(updateError.message); return; }
+
+  const { error: eventError } = await sb.from("opportunity_lifecycle_events").insert({
+    tenant_id: selected.tenant_id,
+    opportunity_id: selected.id,
+    from_state: fromState,
+    to_state: toState,
+    reason: `Operator action from Opportunity Inbox (was ${fromState}).`
+  });
+  if(eventError){ alert(eventError.message); return; }
+
+  const { data: sessionData } = await sb.auth.getSession();
+  const { error: feedbackError } = await sb.from("feedback").insert({
+    tenant_id: selected.tenant_id,
+    aim_id: selected.aim_id,
+    opportunity_id: selected.id,
+    user_id: sessionData?.session?.user?.id || null,
+    feedback_type: feedbackType,
+    rejection_reason: rejectionReason || null,
+    ...predictionSnapshot
+  });
+  if(feedbackError){ alert(feedbackError.message); return; }
+
+  // Update by id, not by mutating `selected` in place — don't assume
+  // `selected` is still the same object reference as the matching item
+  // in `opportunities` (defensive; see the comment on the removed
+  // duplicate showApp() call above for how that assumption broke once).
+  const current = opportunities.find(o => o.id === selected.id);
+  if(current) current.lifecycle_state = toState;
+  selected = current || selected;
+  selected.lifecycle_state = toState;
+  document.getElementById("rejectReasonRow").style.display = "none";
+  renderQueue();
+  renderSelected();
+}
+
+document.getElementById("approveBtn").onclick = ()=> recordDecision("accepted", "actioned");
+document.getElementById("holdBtn").onclick = ()=> recordDecision("held", "held");
+document.getElementById("rejectBtn").onclick = ()=>{
+  document.getElementById("rejectReasonRow").style.display = "block";
+};
+document.getElementById("cancelRejectBtn").onclick = ()=>{
+  document.getElementById("rejectReasonRow").style.display = "none";
+};
+document.getElementById("confirmRejectBtn").onclick = ()=>{
+  const reason = document.getElementById("rejectReasonSelect").value;
+  recordDecision("rejected", "rejected", reason);
+};
+</script>
+</body>
+</html>
