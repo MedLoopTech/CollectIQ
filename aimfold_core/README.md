@@ -867,6 +867,18 @@ finding was confirmed live with a real attack-scenario test (Postgres
 roles, not SQL inspection) both before the fix (attack succeeds) and
 after (attack rejected, legitimate use unaffected).
 
+### Deployment (PR20)
+
+Also pure documentation/tooling, no new Python module — see
+[`DEPLOYMENT.md`](../DEPLOYMENT.md) at the repo root for environments,
+deployment instructions, health checks, rollback procedures, a release
+checklist, and an honest section-43 MVP-readiness self-assessment (12 of
+18 criteria met, 4 partial, 2 not met — the two gaps are both "nothing
+in this codebase runs automatically yet," i.e. no scheduler/retry
+mechanism, which is the actual blocker to a real release, not schema or
+RLS completeness). Nothing has been applied to the real production
+Supabase project.
+
 ## Running the test suites
 
 ```bash

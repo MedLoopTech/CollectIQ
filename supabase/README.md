@@ -5,6 +5,12 @@ transition from CollectIQ (single-tenant AR-audit pilot) to **Aimfold**
 (multi-tenant, self-improving Opportunity Intelligence engine — see
 `AIMFOLD_MASTER_GOAL.md`, the product source of truth).
 
+For the release process this schema is deployed through (environments,
+health checks, rollback procedures, an honest MVP-readiness
+self-assessment), see [`DEPLOYMENT.md`](../DEPLOYMENT.md) at the repo
+root. `health_check.sql` in this directory is the fast schema-shape
+check that document references.
+
 ## `collectiq_full_schema.sql` (legacy)
 
 The original CollectIQ pilot schema (`audit_leads`, `audit_events`,
