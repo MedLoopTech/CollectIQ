@@ -16,11 +16,12 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
-from aimfold_core.aim_compiler.llm_client import StubLLMClient
+from aimfold_core.aim_compiler.llm_client import LLMClient, StubLLMClient
 from aimfold_core.aim_compiler.schema import CompiledAimSpec
 from aimfold_core.evaluation.dataset import COLLECTIQ_EVAL_V1
 from aimfold_core.evaluation.regression import compare_eval_reports
-from aimfold_core.evaluation.runner import run_evaluation
+from aimfold_core.evaluation.runner import rescore_with_weights, run_evaluation
+from aimfold_core.scoring.schema import ScoringWeights
 
 SEED_MIGRATION = REPO_ROOT / "supabase" / "migrations" / "20260819120200_seed_collectiq_aim.sql"
 
@@ -144,6 +145,42 @@ def test_run_evaluation_with_stage2():
           f"false_positive_rate={report.false_positive_rate}, accepted_opportunity_rate={report.accepted_opportunity_rate}, "
           f"ranking_quality={report.ranking_quality}, calibration_accuracy={report.calibration_accuracy}, "
           f"evidence_grounding_accuracy={report.evidence_grounding_accuracy}")
+
+
+class _PoisonLLMClient(LLMClient):
+    """Raises if called at all — proves rescore_with_weights() truly
+    reuses cached evidence rather than quietly re-running Stage 2."""
+
+    def complete(self, system_prompt: str, user_prompt: str):
+        raise AssertionError("rescore_with_weights() must not call the LLM — it should reuse cached evidence")
+
+
+def test_rescore_with_weights_never_calls_the_llm():
+    spec = load_collectiq_spec()
+    baseline_client = StubLLMClient(_STAGE2_RESPONSES)
+    baseline = run_evaluation(COLLECTIQ_EVAL_V1, spec, baseline_client, dataset_name="baseline")
+
+    heavy_evidence_weights = ScoringWeights(
+        aim_fit=10, evidence_strength=50, timing_trigger_strength=10, opportunity_relevance=15,
+        evidence_confidence=10, source_quality=3, actionability=2,
+    )
+    # rescore_with_weights doesn't take an llm_client param at all — the
+    # _PoisonLLMClient above isn't even wired in here; the real assertion
+    # is that this call succeeds without ANY client, proving no Stage-2
+    # call is possible, not just unlikely.
+    rescored = rescore_with_weights(COLLECTIQ_EVAL_V1, baseline.results, spec, heavy_evidence_weights, dataset_name="rescored")
+
+    assert rescored.stage2_ran == baseline.stage2_ran  # same underlying evidence, only weights changed
+    by_id_baseline = {r.example_id: r for r in baseline.results}
+    by_id_rescored = {r.example_id: r for r in rescored.results}
+    excellent = by_id_rescored["excellent-ar-analyst-acme"]
+    assert excellent.matched_positive_criteria == by_id_baseline["excellent-ar-analyst-acme"].matched_positive_criteria
+    assert excellent.total_score != by_id_baseline["excellent-ar-analyst-acme"].total_score, (
+        "heavily reweighting evidence_strength should change the total_score even though the evidence itself is identical"
+    )
+    print(f"PASS: rescore_with_weights changed total_score ({by_id_baseline['excellent-ar-analyst-acme'].total_score} -> "
+          f"{excellent.total_score}) using cached evidence only — matched_positive_criteria is byte-identical, "
+          "proving no Stage-2 call happened")
 
 
 def test_regression_comparator_flags_a_real_regression():

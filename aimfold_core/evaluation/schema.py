@@ -20,6 +20,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from aimfold_core.evidence.schema import EvidenceAssessment, Stage1EvidenceResult
+
 ExampleCategory = Literal["excellent", "acceptable", "false_positive", "irrelevant_signal", "ambiguous"]
 
 
@@ -54,6 +56,14 @@ class EvalResult(BaseModel):
     passed_calibration_check: bool | None
     passed_grounding_check: bool | None
     passed_action_check: bool | None
+
+    # Cached raw pipeline objects — added for PR15 (proposals/testing.py):
+    # re-scoring an already-evaluated example with alternate weights should
+    # never repeat a Stage-2 LLM call just to test a scoring-only change.
+    # AIMFOLD_MASTER_GOAL.md section 49's "Persist before expensive next
+    # steps" rule, applied here rather than only stated.
+    stage1_result: Stage1EvidenceResult
+    evidence_assessment: EvidenceAssessment | None = None
 
 
 class EvalReport(BaseModel):

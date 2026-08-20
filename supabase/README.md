@@ -36,9 +36,10 @@ recommended PR sequence:
 | `20260819120400_signals_evidence_versioning.sql` | PR6 | Additive: `evidence_model`, `evidence_prompt_version` on `signals`, populated when `aimfold_core/evidence/`'s Stage-2 evaluator runs for a signal. |
 | `20260819120500_opportunity_schema.sql` | PR8 | `opportunities`, `opportunity_signals`, `opportunity_entities`, `opportunity_lifecycle_events`. Schema only, same as PR5 — see `aimfold_core/opportunity/` for the clustering/lifecycle logic that would populate these. |
 | `20260819120600_opportunities_action_rationale.sql` | PR9 | Additive: `recommended_action_rationale` on `opportunities`, populated by `aimfold_core/action/`'s deterministic recommender alongside PR8's `recommended_action` column. |
-| `20260819120700_opportunity_inbox_actions.sql` | PR10 | The first authenticated-writable path in the whole schema: a column-level `GRANT` limiting `authenticated` to writing only `opportunities.lifecycle_state`, plus RLS `WITH CHECK` restricting the value to `held`/`rejected`/`actioned`, and a matching `opportunity_lifecycle_events` insert policy. Backs `aimfold_core/inbox/`'s Approve/Hold/Reject buttons. |
+| `20260819120700_opportunity_inbox_actions.sql` | PR10 | The first authenticated-writable path in the whole schema: `authenticated` is limited to writing only `opportunities.lifecycle_state` (an explicit `REVOKE UPDATE` followed by a column-scoped `GRANT` — see below for why the revoke is load-bearing, not decorative), plus RLS `WITH CHECK` restricting the value to `held`/`rejected`/`actioned`, and a matching `opportunity_lifecycle_events` insert policy. Backs `aimfold_core/inbox/`'s Approve/Hold/Reject buttons. |
 | `20260819120800_feedback_outcomes_schema.sql` | PR11 | `feedback` (structured human decision + rejection taxonomy + a Learning Loop prediction snapshot, `feedback_rejection_reason_required` CHECK constraint) and `outcomes` (downstream commercial results). Both append-only-by-policy (insert-only RLS, `outcomes` additionally allows updating your own rows). |
 | `20260819120900_aim_memory_schema.sql` | PR12 | `aim_memory` — versioned aggregate snapshots (accepted/rejected patterns, learned exclusions, source effectiveness, ...) computed from accumulated `feedback`. Select-only for `authenticated`; `entity_memory` (PR5) already existed as a table but nothing wrote to it until `aimfold_core/memory/entity_memory.py` in this PR. |
+| `20260819121000_learning_proposals_schema.sql` | PR15 | `learning_proposals` (section 22's Observe→Measure→Propose→Test→Promote, with a `learning_proposals_exactly_one_candidate` CHECK ensuring a proposal carries exactly one of `proposed_compiled_spec`/`proposed_scoring_weights`) and `scoring_versions` (closing a gap PR7 deliberately deferred — persisted, promotable `ScoringWeights` per Aim). Same `REVOKE`-then-column-`GRANT` pattern as PR10 for the human decide-this-proposal step (`status`/`decided_by`/`decided_at` only). |
 
 `06_leadgen_apify/collectiq_apify_multisource_leadgen_v03.json` is the
 workflow that now reads this seed data instead of hardcoding it — see
@@ -61,7 +62,11 @@ Until the project is linked, paste each file into the Supabase SQL
 editor **in filename order** — every statement is idempotent
 (`create table if not exists`, `create or replace function`,
 `drop policy/trigger if exists` before `create`), so re-running a file
-that has already been applied is safe.
+that has already been applied is safe. On a real Supabase project the
+`REVOKE`/`GRANT` pairs in PR10 and PR15 work correctly with no extra
+setup — Supabase already configures `authenticated`/`anon`'s default
+privileges platform-side, which is exactly the baseline those migrations
+assume and narrow.
 
 ### Conventions established here (carry forward into later PRs)
 
@@ -86,9 +91,24 @@ that has already been applied is safe.
   (`signals.entity_id`) still get a join table (`signal_entities`) for
   the genuinely multi-entity case, rather than forcing every Aim into a
   single-entity shape.
+- **A column-scoped `GRANT` must be preceded by `REVOKE UPDATE ON
+  <table> FROM authenticated`** whenever an RLS `UPDATE` policy also
+  exists for that role on that table (PR10, PR15). `GRANT UPDATE
+  (col)` only *adds* a privilege — it never narrows a broader one
+  already in effect, and Supabase's own default privileges for
+  `authenticated`/`anon` are table-wide (RLS, not table grants, is
+  meant to be Supabase's primary boundary). Without the `REVOKE` first,
+  `authenticated` can still write *any* column on that table in the
+  same request that legitimately satisfies the RLS `WITH CHECK` on the
+  one column you meant to expose — confirmed live while building PR15
+  (caught the exact gap on `opportunities.total_score`, retroactively
+  fixed in `20260819120700_opportunity_inbox_actions.sql` too).
 
 All of the above (including the RLS/tenant-isolation behavior) has been
 verified against a real Postgres instance (`docker run postgres:16`,
-migrations applied via `psql`, then exercised as the `anon` /
+migrations applied via `psql` with `ALTER DEFAULT PRIVILEGES` set up to
+mirror how Supabase actually grants new tables — a one-time `GRANT ...
+ON ALL TABLES` only covers tables that already exist, which is not how
+Supabase's project bootstrap works — then exercised as the `anon` /
 `authenticated` / `service_role` Postgres roles with a stubbed `auth`
 schema) — not just read for syntax.

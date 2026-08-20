@@ -8,6 +8,14 @@ same way a production pipeline would call them.
 for a pre-commit sanity check). Passing a real LLMClient runs the full
 pipeline and unlocks calibration_accuracy / evidence_grounding_accuracy
 / action_recommendation_quality, which need Stage 2's output.
+
+Scoring and evidence-gathering are deliberately split into two functions
+(`_get_stage1_and_evidence` / `_score_and_build_result`) so a caller who
+only wants to re-test a scoring-WEIGHT change can call
+`rescore_with_weights()` and reuse already-gathered evidence without a
+second Stage-2 LLM pass — see aimfold_core/proposals/testing.py, and
+AIMFOLD_MASTER_GOAL.md section 49's "Persist before expensive next
+steps" rule.
 """
 
 from __future__ import annotations
@@ -17,9 +25,10 @@ from aimfold_core.aim_compiler.llm_client import LLMClient
 from aimfold_core.aim_compiler.schema import CompiledAimSpec
 from aimfold_core.evidence.evaluator import evaluate_evidence
 from aimfold_core.evidence.extractor import extract_stage1_evidence
+from aimfold_core.evidence.schema import EvidenceAssessment, Stage1EvidenceResult
 from aimfold_core.opportunity.mapping import opportunity_confidence_fields
 from aimfold_core.scoring.engine import score_signal
-from aimfold_core.scoring.schema import SCORING_ENGINE_VERSION
+from aimfold_core.scoring.schema import DEFAULT_SCORING_WEIGHTS, SCORING_ENGINE_VERSION, ScoringWeights
 
 from .schema import EvalExample, EvalReport, EvalResult
 
@@ -32,16 +41,27 @@ _CATEGORY_RANK = {"excellent": 3, "acceptable": 2, "ambiguous": 1, "false_positi
 _POSITIVE_CATEGORIES = {"excellent", "acceptable"}
 
 
-def _evaluate_one(example: EvalExample, compiled_spec: CompiledAimSpec, llm_client: LLMClient | None) -> EvalResult:
+def _get_stage1_and_evidence(
+    example: EvalExample, compiled_spec: CompiledAimSpec, llm_client: LLMClient | None
+) -> tuple[Stage1EvidenceResult, EvidenceAssessment | None, bool]:
     stage1 = extract_stage1_evidence(compiled_spec, example.signal_text)
-
     evidence_assessment = None
     stage2_ran = False
     if llm_client is not None and stage1.qualifies:
         evidence_assessment, _model = evaluate_evidence(example.signal_text, compiled_spec, stage1, llm_client)
         stage2_ran = True
+    return stage1, evidence_assessment, stage2_ran
 
-    score = score_signal(compiled_spec, stage1, evidence_assessment, entity_type_matches=True)
+
+def _score_and_build_result(
+    example: EvalExample,
+    compiled_spec: CompiledAimSpec,
+    stage1: Stage1EvidenceResult,
+    evidence_assessment: EvidenceAssessment | None,
+    stage2_ran: bool,
+    weights: ScoringWeights,
+) -> EvalResult:
+    score = score_signal(compiled_spec, stage1, evidence_assessment, entity_type_matches=True, weights=weights)
     confidence_fields = opportunity_confidence_fields(score)
     action_rec = recommend_action(compiled_spec, "customer_discovery", score.total_score, confidence_fields.confidence)
 
@@ -80,6 +100,8 @@ def _evaluate_one(example: EvalExample, compiled_spec: CompiledAimSpec, llm_clie
         passed_calibration_check=passed_calibration,
         passed_grounding_check=passed_grounding,
         passed_action_check=passed_action,
+        stage1_result=stage1,
+        evidence_assessment=evidence_assessment,
     )
 
 
@@ -103,14 +125,7 @@ def _ranking_quality(examples: list[EvalExample], results: list[EvalResult]) -> 
     return round(concordant / total_pairs, 4) if total_pairs else 1.0
 
 
-def run_evaluation(
-    examples: list[EvalExample],
-    compiled_spec: CompiledAimSpec,
-    llm_client: LLMClient | None,
-    *,
-    dataset_name: str = "unnamed",
-) -> EvalReport:
-    results = [_evaluate_one(ex, compiled_spec, llm_client) for ex in examples]
+def _build_report(dataset_name: str, compiled_spec: CompiledAimSpec, examples: list[EvalExample], results: list[EvalResult]) -> EvalReport:
     stage2_ran = any(r.stage2_ran for r in results)
 
     positives = [(ex, r) for ex, r in zip(examples, results) if ex.expected_category in _POSITIVE_CATEGORIES]
@@ -159,4 +174,39 @@ def run_evaluation(
     )
 
 
-__all__ = ["run_evaluation"]
+def run_evaluation(
+    examples: list[EvalExample],
+    compiled_spec: CompiledAimSpec,
+    llm_client: LLMClient | None,
+    *,
+    dataset_name: str = "unnamed",
+    weights: ScoringWeights = DEFAULT_SCORING_WEIGHTS,
+) -> EvalReport:
+    results = []
+    for ex in examples:
+        stage1, evidence_assessment, stage2_ran = _get_stage1_and_evidence(ex, compiled_spec, llm_client)
+        results.append(_score_and_build_result(ex, compiled_spec, stage1, evidence_assessment, stage2_ran, weights))
+    return _build_report(dataset_name, compiled_spec, examples, results)
+
+
+def rescore_with_weights(
+    examples: list[EvalExample],
+    baseline_results: list[EvalResult],
+    compiled_spec: CompiledAimSpec,
+    weights: ScoringWeights,
+    *,
+    dataset_name: str = "rescored",
+) -> EvalReport:
+    """Re-scores already-gathered evidence (from a prior run_evaluation()
+    call) with different ScoringWeights. No Stage-1 or Stage-2 work is
+    repeated — this exists specifically so testing a scoring-weight
+    proposal never re-runs Apify/enrichment/LLM calls that already ran."""
+
+    results = [
+        _score_and_build_result(ex, compiled_spec, r.stage1_result, r.evidence_assessment, r.stage2_ran, weights)
+        for ex, r in zip(examples, baseline_results)
+    ]
+    return _build_report(dataset_name, compiled_spec, examples, results)
+
+
+__all__ = ["run_evaluation", "rescore_with_weights"]

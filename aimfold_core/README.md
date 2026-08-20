@@ -505,6 +505,128 @@ environment to wire that into. `compare_eval_reports()` is ready to be
 called by hand (or by a future CI step) whenever a prompt/scoring/signal
 change is made, per section 29's instruction.
 
+### `analytics/` (PR14)
+
+`AIMFOLD_MASTER_GOAL.md` section 24 (Performance Learning) and section
+20 (Hierarchical Learning: Global / Opportunity-Type / Organization /
+Aim). No LLM call, same reasoning as `memory/`: this is counting and
+averaging, not interpretation. Distinct from `memory/` on purpose —
+`memory/` produces *inputs* that feed back into one Aim's future
+scoring/exclusions (PR12, section 26); `analytics/` produces *outputs*
+for human observability (funnel counts, outcome correlation, economic
+totals) and never feeds back into automated behavior itself.
+
+- `performance.py` — `compute_performance_report()`: raw signal count →
+  qualified → surfaced opportunities → accepted/rejected/held, plus (new
+  in this PR — `memory/`'s PR12 aggregation never touched `outcomes`)
+  correlating each opportunity's feedback decision with whatever real
+  `outcomes` were eventually recorded against it (`successful_outcome_rate`
+  vs `unsuccessful_outcome_rate`, with `custom` deliberately left
+  unclassified rather than guessed), and an economic summary from
+  `outcomes.monetary_value`. Section 24 also asks for "cost per accepted
+  opportunity" / "cost per successful outcome" — **not computed**, since
+  no cost/spend tracking exists anywhere yet (that's PR18, Production
+  observability and cost tracking); fabricating a cost number with
+  nothing to compute it from would violate the same no-fabrication
+  discipline the evidence/research modules enforce.
+- `rollup()` — groups a list of per-opportunity contexts by `aim`,
+  `tenant`, or `opportunity_type`. **The tenant-isolation boundary is
+  explicit and load-bearing, not incidental**: `aim`/`tenant` rollups are
+  isolated by construction (an Aim belongs to exactly one tenant) —
+  verified directly by a test that feeds `rollup()` a mixed batch from
+  two tenants and confirms tenant A's accepted count never leaks into
+  tenant B's aim report. `opportunity_type` rollup *deliberately*
+  aggregates across every tenant given to it (a cross-tenant benchmark:
+  "how does customer_discovery perform across everyone using it") and
+  says so in the returned report's `note` field — but nothing in this
+  module or `memory/` ever reads that cross-tenant report back into a
+  single tenant's behavior; only aim-scoped Aim Memory does that.
+  `rollup(level='global')` is refused outright (raises, points the
+  caller at `compute_performance_report()` directly) rather than
+  silently being just another grouping that's easy to misuse.
+- `tests/test_analytics.py` — 9 tests, all passing.
+
+**Deliberately not built in this PR:** nothing queries the database to
+build `OpportunityOutcomeContext` rows or calls this on a schedule — same
+storage-agnostic, no-cron-infrastructure limitation as `memory/`. No new
+migration either; like `evaluation/` (PR13), this is a pure computation
+layer with nowhere new to persist to.
+
+### `proposals/` (PR15)
+
+`AIMFOLD_MASTER_GOAL.md` section 22 (Safe Self-Improvement): Observe →
+Measure → Propose → Test → Promote, "Aimfold must not freely rewrite
+production behavior." Ties PR12 (Aim Memory), PR13 (evaluation), and PR7
+(scoring) together into an actual proposal lifecycle — nothing here is
+ever auto-applied.
+
+- `generator.py` — two proposal types, both deterministic (no LLM):
+  - `propose_exclusion()` turns a `learned_exclusion` Aim Memory entry
+    into a candidate `compiled_spec` with the exclusion added. **Honest
+    about a real limitation**: no exclusion-matching logic exists yet in
+    `aimfold_core/evidence` or `aimfold_core/scoring` (the `excluded`
+    flag `score_signal()` takes is caller-supplied, not derived from
+    `compiled_spec.exclusions`) — the proposal's `expected_impact` says
+    so explicitly rather than implying approval closes the loop.
+  - `propose_scoring_weight_adjustment()` compares average per-dimension
+    scores between `accepted_pattern`/`rejected_pattern` Aim Memory
+    entries and, only above a minimum sample size, proposes a small
+    (±2 point) shift toward whichever dimension most separates accepted
+    from rejected opportunities. This one *is* fully closed-loop —
+    `score_signal()` already takes a real `weights` parameter.
+- `testing.py` — the "Test" step, via PR13's evaluation framework.
+  **`test_scoring_weight_proposal()` makes zero LLM calls** — it calls
+  PR13's `rescore_with_weights()`, which reuses already-gathered
+  Stage-1/Stage-2 evidence from a prior evaluation run (PR13's
+  `EvalResult` was extended in this PR to cache the raw
+  `Stage1EvidenceResult`/`EvidenceAssessment` objects specifically for
+  this) and only recomputes the final score. Directly implements
+  `AIMFOLD_MASTER_GOAL.md`'s newly-added "Persist before expensive next
+  steps" engineering rule rather than just citing it — proven by the
+  function's own signature (no `llm_client` parameter exists to call).
+  `test_exclusion_proposal()` changes `compiled_spec` itself, which
+  Stage 1 output depends on, so it can't skip re-running the pipeline
+  the same way — but still accepts `llm_client=None` to test only the
+  free, deterministic Stage-1 qualification labels.
+- `schema.py` — `LearningProposal` matches section 22's required-fields
+  list exactly (current/proposed behavior, supporting observations,
+  affected Aims, sample size, expected impact, evaluation results,
+  possible regressions, rollback path), with the same "exactly one
+  candidate matching proposal_type" validator as the DB's CHECK
+  constraint.
+- `tests/test_proposals.py` — 8 tests, all passing, including one true
+  end-to-end integration test: a real PR13 evaluation run → real
+  `compute_aim_memory()` (PR12) on decisions derived from it → a real
+  generated proposal → tested via `testing.py` — not three isolated unit
+  tests stitched together in the write-up only.
+
+**A real, previously-shipped security gap found and fixed while
+building this** (not a PR15-only issue): `PR10`'s
+`opportunities.lifecycle_state` column-scoped `GRANT` had the same flaw
+`learning_proposals`' new grant would have had — a column-level `GRANT`
+doesn't narrow a broader privilege already in effect, and Supabase
+grants `authenticated` table-wide privileges by default. Confirmed live,
+not assumed: without an explicit `REVOKE UPDATE` first, `authenticated`
+could still write `opportunities.total_score` in the very same request
+that legitimately updated `lifecycle_state` — the RLS policy never even
+saw it, since it only inspects `lifecycle_state`'s value. Fixed in both
+`20260819120700_opportunity_inbox_actions.sql` (retroactively — that
+migration was already committed and pushed) and the new
+`20260819121000_learning_proposals_schema.sql`; re-verified live that
+the same smuggling attempt is now rejected with a real permission error
+on both tables, and that the legitimate single-column update still
+works. See `supabase/README.md`'s new convention entry.
+
+**Deliberately not built in this PR:** nothing calls `generator.py` or
+`testing.py` on a schedule, and nothing implements the actual "Promote"
+step (writing a new `aim_versions` or `scoring_versions` row and
+flipping `is_current`) — that's a real Supabase write, held per the same
+storage-agnostic pattern as every other `aimfold_core` module, and
+because promotion is explicitly meant to require a human `approved`
+decision first (verified live: `authenticated` can move a proposal's
+`status` to `approved`/`rejected` but not `promoted` — only
+`service_role` can do that).
+
 ## Running the test suites
 
 ```bash
@@ -519,6 +641,8 @@ python research/tests/test_research.py
 python feedback/tests/test_feedback.py
 python memory/tests/test_memory.py
 python evaluation/tests/test_evaluation.py
+python analytics/tests/test_analytics.py
+python proposals/tests/test_proposals.py
 ```
 
 ## Running the API locally (schema validation only, no live compilation)

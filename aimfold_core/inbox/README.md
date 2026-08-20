@@ -49,9 +49,15 @@ buttons update `opportunities.lifecycle_state` and insert a matching
 `opportunity_lifecycle_events` row, restricted at the database level by
 `supabase/migrations/20260819120700_opportunity_inbox_actions.sql`:
 
-- A **column-level GRANT** — `authenticated` can only ever write
-  `lifecycle_state` on `opportunities`, nothing else (not the score, not
-  the evidence).
+- A **column-level GRANT, preceded by an explicit `REVOKE UPDATE`** —
+  `authenticated` can only ever write `lifecycle_state` on
+  `opportunities`, nothing else (not the score, not the evidence). The
+  `REVOKE` isn't decorative: a column `GRANT` alone doesn't narrow a
+  broader table-wide privilege Supabase already grants `authenticated`
+  by default, so without it this same "human-writable" request could
+  smuggle in a `total_score` change too. Found live while building PR15
+  and fixed here retroactively — see `supabase/README.md`'s convention
+  entry for the full explanation.
 - An **RLS `WITH CHECK`** — the new value must be `held`, `rejected`, or
   `actioned`. A member cannot set `lifecycle_state='high_priority'` to
   fake a better ranking; only the deterministic engine in
