@@ -770,6 +770,89 @@ dataset (`aimfold_core/evaluation/dataset_funding_discovery.py`).
   confirmed an authenticated member of that tenant sees only their own
   Aim — neither CollectIQ's nor Career Discovery's are visible to them.
 
+### `observability/` (PR18)
+
+`AIMFOLD_MASTER_GOAL.md` section 34 (Observability) and section 35 (Cost
+Intelligence). Scoped tightly to what's actually instrumentable today —
+see `20260819121400_observability_schema.sql`'s header for why the
+broader operational telemetry those sections also name (source connector
+health, retries, queue sizes, scheduled-workflow tracking) is
+deliberately not built yet: none of that infrastructure exists in this
+repo, and fabricating tables for it would mean nothing real ever
+populates them.
+
+- **`instrumented_client.py` — `InstrumentedLLMClient`.** Wraps any real
+  `LLMClient` and implements the identical interface, so it drops into
+  `compile_aim()`, `evaluate_evidence()`, and `synthesize_entity_context()`
+  with **zero changes to those three modules** — each already depends
+  only on the abstract `LLMClient.complete()` contract (section 27, Model
+  Independence). Records one `ModelRun` per call, success or failure,
+  with self-measured wall-clock latency (LLMResponse.latency_ms is never
+  actually populated by either concrete provider client, so this
+  instruments it independently rather than trusting an unset field).
+- **`cost.py` — `estimate_model_cost()`.** A hardcoded `(provider,
+  model) -> TokenRate` table, checked 2026-08-20 against public pricing
+  pages for the three models this codebase actually uses
+  (`gemini-flash-lite-latest`, `gemini-flash-latest`,
+  `claude-sonnet-5`). Returns `None`, never a guess, for any
+  unrecognized model or missing token count — and the file's own
+  docstring flags that Google has already announced retiring the Gemini
+  2.5 line on 2026-10-16, after which the `-latest` aliases this table is
+  keyed on will silently point at different (and differently priced)
+  models. Live-verified: wrapped a real `GeminiLLMClient` call through a
+  real `compile_aim()` invocation and confirmed the recorded
+  `estimated_cost_usd` matches the rate-table formula exactly against the
+  real token counts Gemini returned (2122 in / 565 out → $0.0004382).
+- **`workflow_tracking.py` — `WorkflowRunTracker`.** A context manager,
+  not a decorator — wraps a *call site*, so the multi-step computations
+  it tracks stay unmodified. `workflow_type` is deliberately narrow
+  (`evaluation_run`, `proposal_test`, `aim_memory_recompute`): the three
+  multi-item batch computations that already run as one coherent unit
+  today (`run_evaluation()`, PR15's `test_*_proposal()`,
+  `compute_aim_memory()`). An exception inside the `with` block is
+  recorded as a `'failed'` WorkflowRun (with the error message) and then
+  re-raised — this class observes, it never swallows failures.
+  Live-verified wrapping a real `run_evaluation()` call.
+- **`cost_analytics.py`** — section 35's four cost metrics (cost per Aim,
+  per surfaced Opportunity, per accepted Opportunity, per successful
+  Outcome), mirroring `analytics/performance.py`'s (PR14) storage-agnostic
+  rollup design: `CostContext` is a caller-joined, already-summed-per-Aim
+  input (the natural cost-attribution unit — one Aim belongs to exactly
+  one tenant, so per-aim/per-tenant rollups are isolated by construction);
+  `rollup()` groups many Aims' contexts up to `tenant`/`opportunity_type`/
+  `global`, with the same explicit "opportunity_type and global
+  deliberately cross tenants, as a benchmark, never fed back into one
+  tenant's behavior" boundary PR14 draws. Ratios return `None`, not
+  `0.0` or a `ZeroDivisionError`, when a funnel stage has zero items —
+  and unpriced model calls are counted and surfaced in the report's
+  `note`, never silently treated as free.
+- `schema.py` — `ModelRun`/`WorkflowRun` pydantic models mirroring
+  `model_runs`/`workflow_runs` exactly; `WorkflowRun` has a validator
+  enforcing `duration_ms` is set if and only if `status != 'running'`
+  (can't know a duration before something finishes).
+- `tests/test_observability.py` — 17 tests: DB CHECK-constraint
+  cross-checks for both Literal types (same pattern as PR12's
+  `MemoryType` test), cost-table arithmetic and its `None`-not-0.0
+  guarantees, `InstrumentedLLMClient`'s success/failure paths (using
+  `StubLLMClient` so this suite stays offline), `WorkflowRun`'s
+  duration/status invariant, `WorkflowRunTracker`'s success/failure
+  paths, and `cost_analytics`' tenant-isolation rollup tests (directly
+  mirroring PR14's `test_rollup_by_aim_never_mixes_tenants`).
+
+**Deliberately not built in this PR:** nothing calls `InstrumentedLLMClient`
+or `WorkflowRunTracker` from the actual `aim_compiler`/`evidence`/
+`research`/`evaluation`/`proposals`/`memory` call sites yet — wiring
+every real invocation throughout this codebase to construct an
+instrumented client and persist its `model_runs`/`workflow_runs` rows
+back to Supabase is a real, meaningful follow-up, held to the same
+storage-agnostic pattern (and same "verify the primitive live before
+wiring it everywhere" discipline) as every other module in this
+sequence. `prompt_versions`/`connector_versions`/`experiments` (named in
+section 36's domain list) are not built — nothing versions prompts or
+connectors independently of the plain text columns that already carry
+that information (`aim_versions.compiler_prompt_version`,
+`sources.connector_version`), and nothing runs A/B experiments yet.
+
 ## Running the test suites
 
 ```bash
@@ -786,6 +869,7 @@ python memory/tests/test_memory.py
 python evaluation/tests/test_evaluation.py
 python analytics/tests/test_analytics.py
 python proposals/tests/test_proposals.py
+python observability/tests/test_observability.py
 ```
 
 ## Running the API locally (schema validation only, no live compilation)
