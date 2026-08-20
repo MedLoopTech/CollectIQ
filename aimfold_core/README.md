@@ -686,6 +686,90 @@ dataset (`aimfold_core/evaluation/dataset_career_discovery.py`).
   sees only their own Aim — CollectIQ's is invisible to them, and vice
   versa.
 
+### Horizontal Validation, Aim #3 (PR17)
+
+`AIMFOLD_MASTER_GOAL.md` section 41 requires **three** materially
+different Aims — PR17 is the third, closing out the section's minimum
+requirement (Aim 1 = CollectIQ, PR3; Aim 2 = Career Discovery, PR16).
+Same discipline as PR16: **zero files under `aimfold_core/*.py` touched**
+to produce this. Everything is data — two new migrations
+(`20260819121200_sources_planned_status.sql`,
+`20260819121300_seed_funding_discovery_aim.sql`) and one new evaluation
+dataset (`aimfold_core/evaluation/dataset_funding_discovery.py`).
+
+- **The compiled Aim is not hand-authored**, same as PR16: the real,
+  live, unedited output of the unmodified PR4 Aim Compiler
+  (`gemini-flash-lite-latest`) given `AIMFOLD_MASTER_GOAL.md` section 3's
+  own Funding Aim example verbatim: *"Find active grants relevant to
+  climate-health infrastructure in emerging markets."*
+- **Materially different by every axis section 41 names, and different
+  from both prior Aims, not just CollectIQ**: `opportunity_type =
+  'funding_discovery'` (CollectIQ: `customer_discovery`; Career:
+  `career_discovery`), `target_entity_types = ["grant", "funding_program",
+  "organization"]` (not `["company"]` or `["job", "employer"]`),
+  `likely_actions = ["review_eligibility", "prepare_application", "apply",
+  "save"]` (a four-action set overlapping Career's `apply`/`save` but
+  adding two funding-specific actions neither other Aim uses),
+  `confidence_thresholds.qualified_signal_min_score = 70` — meaningfully
+  higher than CollectIQ's 60 and Career's 40, live-confirmed to actually
+  gate qualification differently (a single scoring_weights keyword hit,
+  40 points, can never qualify this Aim on its own the way it could
+  qualify Career at the same score). Checked directly in Postgres: **zero
+  overlapping scoring_weights labels across all three Aims** (17 distinct
+  labels total across CollectIQ's 11, Career's 3, and Funding's 3).
+- **A new, honestly-registered `sources` connector.** Unlike PR16 (which
+  reused CollectIQ's existing job-board connectors), Funding Discovery
+  needs a grant-database connector this repo has never had — no Apify
+  actor for grant listings exists, and one was not fabricated just to
+  populate this seed. `20260819121200_sources_planned_status.sql` adds a
+  `'planned'` value to `sources.status` (previously
+  `active`/`disabled`/`deprecated`, none of which honestly describe "in
+  the catalog, no working implementation yet") specifically so
+  `grants_database_web_search` could be registered truthfully rather than
+  mislabeled `'disabled'` (which would imply it once worked). Directly
+  applies the "Filter before paid acquisition" / "Qualify before
+  expensive enrichment" rules in `AIMFOLD_MASTER_GOAL.md`'s Pipeline Cost
+  & Evidence Discipline section: the Aim's structure, scoring, and
+  evaluation are validated *before* any paid connector is wired up, not
+  after. The three signal hypotheses registered against it are marked
+  `is_experimental = true` for the same reason — they describe what this
+  Aim expects to see once the connector exists, not signals actually
+  observed yet.
+- **Ran the identical, unmodified pipeline live** — a third 5-example
+  labeled dataset (`FUNDING_DISCOVERY_EVAL_V1`, same five evaluable
+  categories as PR13/PR16's datasets) through `run_evaluation()` exactly
+  as written, no branch or special case for this Aim anywhere in the call
+  path. Stage 1 qualification predictions were correct for all 5 before
+  any live call. Multiple live Gemini runs during calibration showed real
+  run-to-run variance on the borderline "acceptable" example (total_score
+  ranged 62.6–85.35 across four separate live calls) — the dataset's
+  score range was deliberately widened to (45, 95) to absorb this rather
+  than pinned to one observed run, which would have made the offline
+  regression check flaky for reasons that have nothing to do with the
+  engine being wrong.
+- **A different outcome than PR16's disclosed limitation, also surfaced
+  honestly, not hidden**: PR16's Career Discovery false-positive example
+  (marketing-analytics posting) was *not* cleanly caught by Stage 2 —
+  this Aim's structurally analogous false-positive example (a domestic,
+  non-climate hospital-equipment grant, chosen specifically to test the
+  same Stage-1 keyword-blind-spot) *was*: Stage 2 scored it 45.1/100,
+  well below the 70-point acceptable threshold, and correctly matched
+  only the one `positive_criteria` entry that's actually true, correctly
+  declining the other two. Documented in `dataset_funding_discovery.py`'s
+  notes as the more interesting result it actually is: this Aim's
+  Compiler-generated criteria are worded narrowly enough (each maps to a
+  single checkable fact) that Stage 2 recovers from Stage 1's blind spot
+  cleanly, in contrast to Career Discovery's more abstractly-worded
+  criteria which let a comparable false positive through. Neither
+  disclosure was cherry-picked after the fact — both dataset files
+  documented an expectation *before* the live run and reported what
+  actually happened against it.
+- **Tenant isolation confirmed live across all three Aims**: seeded Aim
+  #3 under a distinct, clearly-labeled tenant
+  (`funding-discovery-validation`, not disguised as a real customer) and
+  confirmed an authenticated member of that tenant sees only their own
+  Aim — neither CollectIQ's nor Career Discovery's are visible to them.
+
 ## Running the test suites
 
 ```bash
