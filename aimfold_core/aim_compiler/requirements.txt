@@ -1,6 +1,7 @@
 pydantic>=2.0,<3
 fastapi>=0.100
 uvicorn>=0.23
+httpx>=0.24
 
 # Only needed to actually run AnthropicLLMClient / GeminiLLMClient (not
 # needed for schema validation, the stub-backed tests, or the FastAPI app

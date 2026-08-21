@@ -162,7 +162,7 @@ Read against the actual code, not aspirationally:
 |---|---|---|
 | 1 | User describes an Aim in natural language | ✅ `compile_aim()` / `POST /aims/compile` (PR4) |
 | 2 | Aimfold compiles it into a structured Aim | ✅ PR4 |
-| 3 | User can inspect/correct what Aimfold intends to watch | ⚠️ Partial — `compiled_spec` is inspectable in the DB and `aim_versions.status` supports proposed/approved/rejected, but no UI exists for a human to review a freshly-compiled Aim before approval (the Inbox UI, PR10, reviews Opportunities, not Aims) |
+| 3 | User can inspect/correct what Aimfold intends to watch | ✅ The Aimfold Portal's "New Aim" wizard (`aimfold_core/portal/`): describe a goal, review the real compiled spec (objective, criteria, scoring weights, likely actions) before approving. "Correct" is still limited to approve-or-discard, not editing individual fields — a narrower reading of the criterion than full inline editing, but genuinely closes the "can't inspect before it lands" gap this row used to flag |
 | 4 | Scheduled scouting runs reliably | ❌ Not built — no scheduler/cron/queue exists anywhere in this codebase; every pipeline stage has been invoked manually or via a one-off script for live verification |
 | 5 | Sources normalize into a common Signal model | ✅ `entities`/`signals` schema (PR5) |
 | 6 | Weak and duplicate signals are automatically suppressed | ⚠️ Partial — two-stage evidence/scoring (PR6/PR7) suppresses weak signals, `entities.fingerprint` dedup exists, but nothing currently populates `entities`/`signals` from a live connector run (`06_leadgen_apify` still writes to the legacy `lead_prospects` table — noted as open since PR5) |

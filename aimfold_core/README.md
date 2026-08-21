@@ -33,8 +33,17 @@ Turns a user's natural-language intent into a validated, structured Aim.
   to 3 times on validation failure with the error fed back to the model,
   and raises `AimCompilationError` if it still can't produce something
   valid.
-- `api.py` — thin FastAPI wrapper (`POST /aims/compile`), same shape as
-  `02_audit_engine/api.py`.
+- `api.py` — thin FastAPI wrapper. `POST /aims/compile` (same shape as
+  `02_audit_engine/api.py`) proposes; `POST /aims/propose` persists —
+  re-validates the exact `compiled_spec` the caller already has via the
+  same `CompiledAimSpec` model, verifies the caller's identity and real
+  tenant membership, then writes `aims`/`aim_versions` with a
+  service-role key the caller never sees. See
+  `aimfold_core/portal/README.md`'s "New Aim" section for the full
+  design rationale and live verification (including three attack tests
+  — foreign tenant, missing auth, malformed spec — all correctly
+  rejected) — built there, alongside the portal's Create-Aim UI that
+  calls it.
 - `tests/test_compiler.py` — run with
   `python aimfold_core/aim_compiler/tests/test_compiler.py` (no pytest
   dependency, same convention as `02_audit_engine/test_golden.py`).
@@ -52,18 +61,12 @@ directly to override.
 
 ### What PR4 does **not** do yet
 
-1. **No persistence.** `POST /aims/compile` returns a proposed
-   `AimCompilationResult` (matching `AimCompilationResult` in
-   `schema.py`) but does not write it to `aim_versions`. Doing that needs
-   a Supabase service-role key and the actual approval flow (`proposed` →
-   `approved`, flipping `is_current`) that
-   `20260819120100_aim_schema.sql`'s RLS policies already assume exists
-   (`aim_versions` has no insert/update policy for `authenticated` —
-   by design, only a service-role-backed approval flow should write
-   there). That flow is the natural next slice of PR4, once there's a
-   real key to test it against and you've confirmed you want me to wire
-   direct writes to your Supabase project.
-3. **Not yet used by the n8n workflow.** `06_leadgen_apify`'s v0.3
+1. ~~No persistence.~~ Closed — `POST /aims/propose` (above) is that
+   flow: real service-role writes to `aims`/`aim_versions`, gated by a
+   real re-validation + identity + tenant-membership check, wired up end
+   to end from the portal's "New Aim" UI. Left here so the history of
+   this gap being identified and later closed stays visible.
+2. **Not yet used by the n8n workflow.** `06_leadgen_apify`'s v0.3
    workflow reads an already-approved, already-current `aim_versions` row
    — it has no dependency on this compiler. This module is for *creating
    new* Aims (or new versions of existing ones) going forward, starting

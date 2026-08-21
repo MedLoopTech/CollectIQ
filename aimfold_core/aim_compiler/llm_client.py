@@ -142,10 +142,19 @@ class GeminiLLMClient(LLMClient):
 def build_llm_client_from_env() -> LLMClient:
     """Provider switch driven by AI_PROVIDER, same convention sehat90 uses
     (its memory: "Provider abstraction (Anthropic prod / Gemini test via
-    AI_PROVIDER)"). Defaults to anthropic if unset."""
+    AI_PROVIDER)"). Defaults to anthropic if unset.
+
+    GEMINI_MODEL optionally overrides GeminiLLMClient's default
+    (gemini-flash-latest) — this whole dev sequence's own live testing has
+    repeatedly hit real, transient 503 UNAVAILABLE responses from that
+    `-latest` alias under load and worked around it every time by pointing
+    at gemini-flash-lite-latest explicitly (see this file's class
+    docstring); this makes that workaround configurable via `.env` instead
+    of needing a code change at each call site that hits it."""
     provider = os.environ.get("AI_PROVIDER", "anthropic").strip().lower()
     if provider == "gemini":
-        return GeminiLLMClient()
+        model_override = os.environ.get("GEMINI_MODEL")
+        return GeminiLLMClient(model=model_override) if model_override else GeminiLLMClient()
     if provider == "anthropic":
         return AnthropicLLMClient()
     raise RuntimeError(f"Unknown AI_PROVIDER={provider!r} — expected 'anthropic' or 'gemini'.")
